@@ -1,0 +1,364 @@
+import { Player, Dealer } from './Player.js';
+import { Shoe } from './Shoe.js';
+import { Card } from './Card.js';
+import { basic } from './Strategy.js';
+
+export class Parameters {
+  constructor() {
+    this.playerCard1 = new Card("0X");
+    this.playerCard2 = new Card("0X");
+    this.dealerCard1 = new Card("0X");
+    this.dealerCard2 = new Card("0X");
+    this.times = 1000000;
+    this.decks = 6;
+  }
+}
+
+export class Game {
+  constructor(players = [], params = null) {
+    if (typeof players === 'number') {
+      // Constructor with number of players
+      this.players = [];
+      for (let i = 0; i < players; i++) {
+        this.players.push(new Player(`Player${i + 1}`, basic));
+      }
+    } else {
+      // Constructor with player array
+      this.players = [...players];
+    }
+    
+    this.dealer = new Dealer("Dealer");
+    this.showMode = false;
+    this.shoe = new Shoe();
+    this.params = params;
+    this.gameHistory = [];
+    this.currentGameState = null;
+  }
+
+  deal(count = 0) {
+    let playerCard1 = new Card("0X");
+    let playerCard2 = new Card("0X");
+    let dealerCard1 = new Card("0X");
+    let decks = 6;
+
+    if (this.params) {
+      playerCard1 = this.params.playerCard1;
+      playerCard2 = this.params.playerCard2;
+      dealerCard1 = this.params.dealerCard1;
+      decks = this.params.decks;
+    }
+
+    this.shoe.load(decks);
+    this.shoe.shuffle();
+
+    let bet = 1.0;
+    if (count !== 0) {
+      if (decks === 6) {
+        if (count >= 5 && count < 10) {
+          bet = 2.0;
+        } else if (count >= 10) {
+          bet = 3.0;
+        }
+      } else {
+        bet = bet + (count / decks) * bet;
+      }
+    }
+
+    // Deal first cards
+    for (const player of this.players) {
+      player.setBet(0, bet);
+      player.receive(0, this.shoe.deal(playerCard1));
+    }
+    this.dealer.receive(0, this.shoe.deal(dealerCard1));
+
+    // Deal second cards
+    for (const player of this.players) {
+      player.receive(0, this.shoe.deal(playerCard2));
+    }
+
+    this.currentGameState = {
+      players: this.players.map(p => ({
+        name: p.getName(),
+        hands: p.getHands().map(h => ({
+          cards: h.getCards().map(c => c.toString()),
+          total: h.getTotal(),
+          bet: h.getBet(),
+          isBlackjack: h.isBlackjack()
+        }))
+      })),
+      dealer: {
+        name: this.dealer.getName(),
+        hands: [{
+          cards: this.dealer.getHand(0).getCards().map(c => c.toString()),
+          total: this.dealer.total(0),
+          bet: 0,
+          isBlackjack: this.dealer.isBlackjack(0)
+        }]
+      }
+    };
+  }
+
+  play() {
+    let dealerCard2 = new Card("0X");
+    if (this.params) {
+      dealerCard2 = this.params.dealerCard2;
+    }
+
+    let allBjs = true;
+    let allBusts = true;
+
+    for (const player of this.players) {
+      let splits = 0;
+      let splittingAces = false;
+
+      for (let i = 0; i < player.getNumberOfHands(); i++) {
+        // Second card for split hands
+        if (i > 0) {
+          player.receive(i, this.shoe.deal());
+          if (splittingAces) break;
+        }
+
+        // Check for blackjack
+        if (player.total(i) === 21) {
+          break;
+        }
+
+        allBjs = false;
+
+        let action = player.getAction(i, this.dealer.total(0));
+
+        if (action === 'r') {
+          player.surrender(i);
+        } else {
+          while (action !== 's') {
+            if (action === 'p' && splits < 2) {
+              player.split(i);
+              splits++;
+            }
+
+            if (action === 'd') {
+              player.doubleBet(i);
+            }
+
+            if (action === 'p' && player.total(i) === 11) {
+              splittingAces = true;
+            }
+
+            player.receive(i, this.shoe.deal());
+
+            if (action === 'd' || splittingAces || player.total(i) === -1 || player.total(i) === 21) {
+              break;
+            }
+
+            action = player.getAction(i, this.dealer.total(0));
+          }
+        }
+
+        if (player.total(i) !== -1) {
+          allBusts = false;
+        }
+      }
+    }
+
+    // Dealer's turn
+    const dealerTotal = this.dealer.total(0);
+    if ((!allBusts && !allBjs) || (allBjs && (dealerTotal === 10 || dealerTotal === 11))) {
+      while (this.dealer.total(0) < 17 && this.dealer.total(0) !== -1) {
+        this.dealer.receive(0, this.shoe.deal(dealerCard2));
+      }
+    }
+  }
+
+  pay() {
+    const dealerBj = this.dealer.isBlackjack(0);
+    const dealerTotal = this.dealer.total(0);
+
+    for (const player of this.players) {
+      for (let i = 0; i < player.getNumberOfHands(); i++) {
+        const playerBj = player.isBlackjack(i) && player.getNumberOfHands() === 1;
+        const playerTotal = player.total(i);
+
+        if (playerTotal === -1 || (dealerBj && !playerBj) || (dealerTotal !== -1 && dealerTotal > playerTotal)) {
+          // Player loses
+          if (dealerBj && player.isDoubled(i)) {
+            player.setBet(i, 0.5 * player.getBet(i));
+          }
+          player.loss(i);
+        } else if ((playerBj && !dealerBj) || (dealerTotal === -1 || dealerTotal < playerTotal)) {
+          // Player wins
+          player.win(i, playerBj);
+        }
+        // Push - no money changes hands
+      }
+      player.discardHands();
+    }
+    this.dealer.discardHands();
+  }
+
+  run(times = 1000000, onProgress = null) {
+    if (this.params) {
+      times = this.params.times;
+    }
+
+    const startTime = Date.now();
+    
+    for (let i = 0; i < times; i++) {
+      const count = this.shoe.count();
+      this.deal(count);
+      this.play();
+      this.pay();
+
+      if (onProgress && i % Math.floor(times / 100) === 0) {
+        onProgress({
+          current: i,
+          total: times,
+          progress: (i / times) * 100
+        });
+      }
+    }
+
+    const endTime = Date.now();
+    const elapsedSeconds = (endTime - startTime) / 1000;
+
+    return this.generateReport(times, elapsedSeconds);
+  }
+
+  generateReport(times, elapsedSeconds) {
+    const results = [];
+    
+    for (const player of this.players) {
+      const earnings = player.getEarnings();
+      const ev = (earnings / times) * 100;
+      const wins = player.getWins();
+      const pairs = player.getPairs();
+      
+      results.push({
+        name: player.getName(),
+        earnings,
+        wins,
+        pairs,
+        games: times,
+        expectedValue: ev
+      });
+    }
+
+    return {
+      players: results,
+      elapsedTime: elapsedSeconds,
+      totalGames: times
+    };
+  }
+
+  setShowMode(showMode) {
+    this.showMode = showMode;
+  }
+
+  isShowMode() {
+    return this.showMode;
+  }
+
+  getCurrentGameState() {
+    if (!this.currentGameState) {
+      return {
+        players: [],
+        dealer: { name: "Dealer", hands: [] }
+      };
+    }
+    return this.currentGameState;
+  }
+
+  // Interactive game methods for React UI
+  dealSingle() {
+    this.deal();
+    return this.getCurrentGameState();
+  }
+
+  playerAction(playerIndex, handIndex, action) {
+    const player = this.players[playerIndex];
+    
+    switch (action) {
+      case 'h': // Hit
+        player.receive(handIndex, this.shoe.deal());
+        break;
+      case 's': // Stand
+        break;
+      case 'd': // Double
+        player.doubleBet(handIndex);
+        player.receive(handIndex, this.shoe.deal());
+        break;
+      case 'p': // Split
+        player.split(handIndex);
+        break;
+      case 'r': // Surrender
+        player.surrender(handIndex);
+        break;
+      default:
+        break;
+    }
+
+    return this.getCurrentGameState();
+  }
+
+  finishRound() {
+    this.play();
+    this.payInteractive(); // Use special pay method that doesn't clear hands
+    
+    // Update game state after dealer plays
+    this.currentGameState = {
+      players: this.players.map(p => ({
+        name: p.getName(),
+        hands: p.getHands().map(h => ({
+          cards: h.getCards().map(c => c.toString()),
+          total: h.getTotal(),
+          bet: h.getBet(),
+          isBlackjack: h.isBlackjack()
+        }))
+      })),
+      dealer: {
+        name: this.dealer.getName(),
+        hands: [{
+          cards: this.dealer.getHand(0).getCards().map(c => c.toString()),
+          total: this.dealer.total(0),
+          bet: 0,
+          isBlackjack: this.dealer.isBlackjack(0)
+        }]
+      }
+    };
+    
+    return this.getCurrentGameState();
+  }
+
+  // Pay method for interactive games - doesn't clear hands
+  payInteractive() {
+    const dealerBj = this.dealer.isBlackjack(0);
+    const dealerTotal = this.dealer.total(0);
+
+    for (const player of this.players) {
+      for (let i = 0; i < player.getNumberOfHands(); i++) {
+        const playerBj = player.isBlackjack(i) && player.getNumberOfHands() === 1;
+        const playerTotal = player.total(i);
+
+        if (playerTotal === -1 || (dealerBj && !playerBj) || (dealerTotal !== -1 && dealerTotal > playerTotal)) {
+          // Player loses
+          if (dealerBj && player.isDoubled(i)) {
+            player.setBet(i, 0.5 * player.getBet(i));
+          }
+          player.loss(i);
+        } else if ((playerBj && !dealerBj) || (dealerTotal === -1 || dealerTotal < playerTotal)) {
+          // Player wins
+          player.win(i, playerBj);
+        }
+        // Push - no money changes hands
+      }
+    }
+    // Don't clear hands in interactive mode - let the UI handle it
+  }
+
+  // Method to clear hands manually for new round
+  clearHands() {
+    for (const player of this.players) {
+      player.discardHands();
+    }
+    this.dealer.discardHands();
+  }
+}

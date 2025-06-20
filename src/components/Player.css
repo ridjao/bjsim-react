@@ -1,0 +1,23 @@
+.player {
+  margin: 20px 0;
+  padding: 20px;
+  border: 2px solid #333;
+  border-radius: 12px;
+  background: white;
+}
+
+.player.dealer {
+  background: #e8f5e8;
+  border-color: #28a745;
+}
+
+.player-name {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.5em;
+  text-align: center;
+}
+
+.dealer .player-name {
+  color: #28a745;
+}

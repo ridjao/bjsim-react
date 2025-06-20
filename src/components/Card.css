@@ -1,0 +1,44 @@
+.card {
+  width: 60px;
+  height: 84px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  font-weight: bold;
+  font-size: 14px;
+  position: relative;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.card.red {
+  color: #d63384;
+}
+
+.card.black {
+  color: #333;
+}
+
+.card-hidden {
+  background: #1a365d;
+  color: white;
+}
+
+.card-back {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.card-rank {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.card-suit {
+  font-size: 20px;
+  line-height: 1;
+}
