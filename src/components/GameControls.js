@@ -9,56 +9,56 @@ const GameControls = ({
   onSplit, 
   gameState,
   canHit = true,
+  canStand = true,
   canDouble = true,
   canSplit = false
 }) => {
   return (
     <div className="game-controls">
       <div className="control-section">
-        <h3>Game Controls</h3>
-        <button 
-          className="btn btn-primary" 
-          onClick={onDeal}
-          disabled={gameState === 'playing'}
-        >
-          Deal New Hand
-        </button>
-      </div>
-      
-      {gameState === 'playing' && (
-        <div className="control-section">
-          <h3>Player Actions</h3>
-          <div className="action-buttons">
-            <button 
-              className="btn btn-success" 
-              onClick={onHit}
-              disabled={!canHit}
-            >
-              Hit
-            </button>
-            <button 
-              className="btn btn-warning" 
-              onClick={onStand}
-            >
-              Stand
-            </button>
-            <button 
-              className="btn btn-info" 
-              onClick={onDouble}
-              disabled={!canDouble}
-            >
-              Double
-            </button>
-            <button 
-              className="btn btn-secondary" 
-              onClick={onSplit}
-              disabled={!canSplit}
-            >
-              Split
-            </button>
-          </div>
+        <div className="all-actions">
+          <button 
+            className="btn btn-primary deal-btn" 
+            onClick={onDeal}
+            disabled={gameState === 'playing'}
+          >
+            Deal New Hand
+          </button>
+          
+          {gameState === 'playing' && (
+            <div className="player-actions">
+              <button 
+                className="btn btn-success" 
+                onClick={onHit}
+                disabled={!canHit}
+              >
+                Hit
+              </button>
+              <button 
+                className="btn btn-warning" 
+                onClick={onStand}
+                disabled={!canStand}
+              >
+                Stand
+              </button>
+              <button 
+                className="btn btn-info" 
+                onClick={onDouble}
+                disabled={!canDouble}
+              >
+                Double
+              </button>
+              <button 
+                className="btn btn-secondary" 
+                onClick={onSplit}
+                disabled={!canSplit}
+              >
+                Split
+              </button>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

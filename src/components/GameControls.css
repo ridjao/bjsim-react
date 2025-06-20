@@ -1,34 +1,40 @@
 .game-controls {
-  padding: 20px;
+  padding: 15px;
   background: #f8f9fa;
   border-radius: 8px;
-  margin: 20px 0;
+  margin: 15px 0;
 }
 
 .control-section {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
-.control-section h3 {
-  margin: 0 0 10px 0;
-  color: #333;
-}
-
-.action-buttons {
+.all-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.deal-btn {
+  flex-shrink: 0;
+}
+
+.player-actions {
+  display: flex;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .btn {
-  padding: 10px 20px;
+  padding: 8px 16px;
   border: none;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s;
-  min-width: 80px;
+  min-width: 70px;
 }
 
 .btn:hover:not(:disabled) {

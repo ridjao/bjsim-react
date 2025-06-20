@@ -1,34 +1,214 @@
 .game-board {
-  padding: 20px;
-  max-width: 1200px;
+  padding: 15px;
+  max-width: 1400px;
   margin: 0 auto;
+  min-height: 95vh;
+  height: fit-content;
 }
 
-.game-board h2 {
+.game-header {
+  margin-bottom: 10px;
+  min-height: 10px;
+}
+
+.game-result-banner {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  border: 2px solid #ffeaa7;
+  border-radius: 12px;
+  padding: 15px;
   text-align: center;
-  color: #333;
-  margin-bottom: 30px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  animation: slideDown 0.5s ease-out;
+}
+
+.game-result-banner h3 {
+  margin: 0;
+  color: #856404;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.game-layout {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  height: fit-content;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0; /* Allows flex item to shrink below content size */
+}
+
+.side-panel {
+  width: 300px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
 }
 
 .game-area {
   background: #1a5d1a;
   border-radius: 12px;
-  padding: 30px;
-  margin: 20px 0;
-  min-height: 500px;
-}
-
-.game-result {
-  text-align: center;
   padding: 20px;
-  margin: 20px 0;
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
-  border-radius: 8px;
+  margin: 15px 0;
+  min-height: 280px;
 }
 
-.game-result h3 {
+.game-stats {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #e9ecef;
+}
+
+.stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 8px;
+}
+
+.stats-header h3 {
   margin: 0;
-  color: #856404;
-  font-size: 24px;
+  color: #333;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.reset-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stat-card {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: #ffffff;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: #6c757d;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  letter-spacing: 0.3px;
+  line-height: 1;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.1;
+}
+
+.stat-value.wins {
+  color: #28a745;
+}
+
+.stat-value.losses {
+  color: #dc3545;
+}
+
+.stat-value.blackjacks {
+  color: #ffc107;
+}
+
+.stat-value.busts {
+  color: #fd7e14;
+}
+
+.stat-value.earnings-positive {
+  color: #28a745;
+}
+
+.stat-value.earnings-negative {
+  color: #dc3545;
+}
+
+/* Responsive Layout */
+@media (max-width: 1024px) {
+  .game-layout {
+    flex-direction: column;
+  }
+  
+  .side-panel {
+    width: 100%;
+    position: static;
+    max-height: none;
+    order: -1; /* Move stats to top on mobile */
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+  }
+  
+  .game-board {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .game-header h2 {
+    font-size: 1.5em;
+  }
+  
+  .game-result-banner h3 {
+    font-size: 1.2em;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .stat-card {
+    min-height: 50px;
+    padding: 8px;
+  }
+  
+  .stat-label {
+    font-size: 9px;
+  }
+  
+  .stat-value {
+    font-size: 14px;
+  }
 }

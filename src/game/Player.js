@@ -43,13 +43,17 @@ export class Player {
     const cards = currentHand.getCards();
     
     if (cards.length === 2 && cards[0].rank() === cards[1].rank()) {
+      const originalBet = currentHand.getBet();
+      
       // Create new hand with second card
       const newHand = new Hand();
       newHand.add(cards[1]);
-      newHand.setBet(currentHand.getBet());
+      newHand.setBet(originalBet);
       
-      // Keep first card in current hand
-      currentHand.cards = [cards[0]];
+      // Clear current hand and add first card back
+      currentHand.clear();
+      currentHand.add(cards[0]);
+      currentHand.setBet(originalBet);
       
       // Insert new hand after current hand
       this.hands.splice(handIndex + 1, 0, newHand);

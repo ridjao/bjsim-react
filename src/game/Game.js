@@ -160,7 +160,40 @@ export class Game {
       }
     }
 
-    // Dealer's turn
+    // Dealer's turn - first deal hole card
+    this.dealer.receive(0, this.shoe.deal(dealerCard2));
+    
+    const dealerTotal = this.dealer.total(0);
+    if ((!allBusts && !allBjs) || (allBjs && (dealerTotal === 10 || dealerTotal === 11))) {
+      while (this.dealer.total(0) < 17 && this.dealer.total(0) !== -1) {
+        this.dealer.receive(0, this.shoe.deal());
+      }
+    }
+  }
+
+  // Interactive mode dealer play - only plays dealer, assumes players are done
+  playDealer() {
+    let dealerCard2 = new Card("0X");
+    if (this.params) {
+      dealerCard2 = this.params.dealerCard2;
+    }
+
+    // Check if any player hands are not busted
+    let allBusts = true;
+    let allBjs = true;
+    
+    for (const player of this.players) {
+      for (let i = 0; i < player.getNumberOfHands(); i++) {
+        if (player.total(i) !== -1) {
+          allBusts = false;
+        }
+        if (player.total(i) !== 21 || !player.isBlackjack(i)) {
+          allBjs = false;
+        }
+      }
+    }
+
+    // Dealer plays only if needed
     const dealerTotal = this.dealer.total(0);
     if ((!allBusts && !allBjs) || (allBjs && (dealerTotal === 10 || dealerTotal === 11))) {
       while (this.dealer.total(0) < 17 && this.dealer.total(0) !== -1) {
@@ -195,7 +228,7 @@ export class Game {
     this.dealer.discardHands();
   }
 
-  run(times = 1000000, onProgress = null) {
+  run(times = 1000000, onProgress = null, onHandPlayed = null) {
     if (this.params) {
       times = this.params.times;
     }
@@ -205,7 +238,18 @@ export class Game {
     for (let i = 0; i < times; i++) {
       const count = this.shoe.count();
       this.deal(count);
+      
+      // Capture hand data before playing
+      const handData = this.captureHandData(i + 1);
+      
       this.play();
+      
+      // Capture final results and notify callback BEFORE pay() clears hands
+      if (onHandPlayed) {
+        const finalHandData = this.captureHandResults(handData);
+        onHandPlayed(finalHandData);
+      }
+      
       this.pay();
 
       if (onProgress && i % Math.floor(times / 100) === 0) {
@@ -269,7 +313,56 @@ export class Game {
 
   // Interactive game methods for React UI
   dealSingle() {
-    this.deal();
+    // Initialize shoe only if it's empty or first time
+    if (this.shoe.remainingCards() === 0) {
+      this.shoe.load(6);
+      this.shoe.shuffle();
+    }
+
+    let bet = 1.0;
+    const count = this.shoe.count();
+    
+    if (count !== 0) {
+      if (count >= 5 && count < 10) {
+        bet = 2.0;
+      } else if (count >= 10) {
+        bet = 3.0;
+      }
+    }
+
+    // Deal first cards
+    for (const player of this.players) {
+      player.setBet(0, bet);
+      player.receive(0, this.shoe.deal());
+    }
+    this.dealer.receive(0, this.shoe.deal());
+
+    // Deal second cards
+    for (const player of this.players) {
+      player.receive(0, this.shoe.deal());
+    }
+
+    this.currentGameState = {
+      players: this.players.map(p => ({
+        name: p.getName(),
+        hands: p.getHands().map(h => ({
+          cards: h.getCards().map(c => c.toString()),
+          total: h.getTotal(),
+          bet: h.getBet(),
+          isBlackjack: h.isBlackjack()
+        }))
+      })),
+      dealer: {
+        name: this.dealer.getName(),
+        hands: [{
+          cards: this.dealer.getHand(0).getCards().map(c => c.toString()),
+          total: this.dealer.total(0),
+          bet: 0,
+          isBlackjack: this.dealer.isBlackjack(0)
+        }]
+      }
+    };
+
     return this.getCurrentGameState();
   }
 
@@ -288,6 +381,11 @@ export class Game {
         break;
       case 'p': // Split
         player.split(handIndex);
+        // Deal second cards to split hands
+        if (handIndex < player.getNumberOfHands() - 1) {
+          player.receive(handIndex, this.shoe.deal());
+          player.receive(handIndex + 1, this.shoe.deal());
+        }
         break;
       case 'r': // Surrender
         player.surrender(handIndex);
@@ -296,11 +394,33 @@ export class Game {
         break;
     }
 
+    // Update the current game state after the action
+    this.currentGameState = {
+      players: this.players.map(p => ({
+        name: p.getName(),
+        hands: p.getHands().map(h => ({
+          cards: h.getCards().map(c => c.toString()),
+          total: h.getTotal(),
+          bet: h.getBet(),
+          isBlackjack: h.isBlackjack()
+        }))
+      })),
+      dealer: {
+        name: this.dealer.getName(),
+        hands: [{
+          cards: this.dealer.getHand(0).getCards().map(c => c.toString()),
+          total: this.dealer.total(0),
+          bet: 0,
+          isBlackjack: this.dealer.isBlackjack(0)
+        }]
+      }
+    };
+
     return this.getCurrentGameState();
   }
 
   finishRound() {
-    this.play();
+    this.playDealer();
     this.payInteractive(); // Use special pay method that doesn't clear hands
     
     // Update game state after dealer plays
@@ -360,5 +480,91 @@ export class Game {
       player.discardHands();
     }
     this.dealer.discardHands();
+  }
+
+  captureHandData(handNumber) {
+    return {
+      handNumber,
+      players: this.players.map(player => ({
+        name: player.getName(),
+        hands: player.getHands().map(hand => ({
+          cards: hand.getCards().map(card => card.toString()),
+          total: hand.getTotal(),
+          bet: hand.getBet(),
+          isBlackjack: hand.isBlackjack()
+        }))
+      })),
+      dealer: {
+        upCard: this.dealer.getHand(0).getCards()[0]?.toString() || '',
+        cards: [], // Initially empty, will be filled after play
+        total: this.dealer.total(0)
+      }
+    };
+  }
+
+  captureHandResults(handData) {
+    const dealerHand = this.dealer.getHand(0);
+    const dealerCards = dealerHand.getCards();
+    const dealerTotal = this.dealer.total(0);
+    const dealerBj = this.dealer.isBlackjack(0);
+
+
+    return {
+      ...handData,
+      dealer: {
+        upCard: handData.dealer.upCard,
+        cards: dealerCards.map(card => card.toString()),
+        total: handData.dealer.total,
+        finalTotal: dealerTotal,
+        isBlackjack: dealerBj
+      },
+      players: this.players.map((player, playerIndex) => {
+        const originalPlayer = handData.players[playerIndex];
+        return {
+          ...originalPlayer,
+          hands: player.getHands().map((hand, handIndex) => {
+            const playerTotal = hand.getTotal();
+            const playerBj = hand.isBlackjack() && player.getNumberOfHands() === 1;
+            const bet = hand.getBet();
+            
+            let result = 'push';
+            let payout = 0;
+            
+            if (playerTotal === -1) {
+              result = 'bust';
+              payout = -bet;
+            } else if (dealerTotal === -1) {
+              result = 'win';
+              payout = bet;
+            } else if (playerBj && !dealerBj) {
+              result = 'blackjack';
+              payout = bet * 1.5;
+            } else if (dealerBj && !playerBj) {
+              result = 'loss';
+              payout = -bet;
+            } else if (playerBj && dealerBj) {
+              result = 'push';
+              payout = 0;
+            } else if (playerTotal > dealerTotal) {
+              result = 'win';
+              payout = bet;
+            } else if (playerTotal < dealerTotal) {
+              result = 'loss';
+              payout = -bet;
+            }
+            
+            return {
+              cards: hand.getCards().map(card => card.toString()), // Capture final cards after all hits
+              total: hand.getTotal(), // Original total (may be same as final)
+              bet: hand.getBet(),
+              isBlackjack: hand.isBlackjack(),
+              finalTotal: playerTotal,
+              result,
+              payout
+            };
+          })
+        };
+      })
+    };
   }
 }

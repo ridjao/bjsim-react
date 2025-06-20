@@ -4,6 +4,9 @@ export class Shoe {
   constructor() {
     this.cards = [];
     this.runningCount = 0;
+    this.devMode = false;
+    this.preSelectedCards = [];
+    this.devCardIndex = 0;
   }
 
   load(numDecks = 6) {
@@ -22,12 +25,24 @@ export class Shoe {
   }
 
   deal(forcedCard = null) {
+    // Check for forced card first (used by original C++ logic)
     if (forcedCard && forcedCard.name !== "0X") {
-      // Update count for forced card
       this.updateCount(forcedCard);
       return forcedCard;
     }
 
+    // Check for dev mode pre-selected cards
+    if (this.devMode && this.preSelectedCards.length > 0) {
+      if (this.devCardIndex < this.preSelectedCards.length) {
+        const card = this.preSelectedCards[this.devCardIndex];
+        this.devCardIndex++;
+        this.updateCount(card);
+        return card;
+      }
+      // If we've used all pre-selected cards, fall back to normal dealing
+    }
+
+    // Normal dealing logic
     if (this.cards.length === 0) {
       this.load(6);
       this.shuffle();
@@ -53,5 +68,40 @@ export class Shoe {
 
   remainingCards() {
     return this.cards.length;
+  }
+
+  // Dev mode methods
+  setDevMode(enabled) {
+    this.devMode = enabled;
+    if (!enabled) {
+      this.preSelectedCards = [];
+      this.devCardIndex = 0;
+    }
+  }
+
+  setPreSelectedCards(cards) {
+    this.preSelectedCards = cards;
+    this.devCardIndex = 0;
+  }
+
+  addPreSelectedCard(card) {
+    this.preSelectedCards.push(card);
+  }
+
+  clearPreSelectedCards() {
+    this.preSelectedCards = [];
+    this.devCardIndex = 0;
+  }
+
+  getPreSelectedCards() {
+    return this.preSelectedCards;
+  }
+
+  getRemainingPreSelectedCards() {
+    return this.preSelectedCards.slice(this.devCardIndex);
+  }
+
+  resetDevCardIndex() {
+    this.devCardIndex = 0;
   }
 }

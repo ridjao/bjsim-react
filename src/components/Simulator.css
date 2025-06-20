@@ -1,7 +1,23 @@
 .simulator {
-  padding: 20px;
-  max-width: 1200px;
+  padding: 15px;
+  max-width: 1400px;
   margin: 0 auto;
+}
+
+.simulator-layout {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.side-panel {
+  width: 350px;
+  flex-shrink: 0;
 }
 
 .simulator h2 {
@@ -37,6 +53,11 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+}
+
+.custom-games-input {
+  margin-top: 8px;
+  width: 100%;
 }
 
 .run-button {
@@ -162,4 +183,193 @@
 
 .stat-value.negative {
   color: #dc3545;
+}
+
+/* Played Hands Panel */
+.played-hands {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.hands-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.hands-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2em;
+}
+
+.hands-count {
+  background: #007bff;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.hands-disabled,
+.no-hands {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 20px;
+}
+
+.hands-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hand-record {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 12px;
+}
+
+.hand-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.hand-number {
+  color: #007bff;
+  font-size: 11px;
+}
+
+.hand-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dealer-info,
+.player-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dealer-label,
+.player-label {
+  font-weight: bold;
+  color: #495057;
+  font-size: 11px;
+}
+
+.dealer-cards,
+.player-cards {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 1px 3px;
+  font-size: 10px;
+  font-weight: bold;
+  min-width: 18px;
+  text-align: center;
+}
+
+.card.red {
+  color: #dc3545;
+}
+
+.card.black {
+  color: #333;
+}
+
+.total {
+  font-size: 10px;
+  color: #6c757d;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.player-hand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 4px;
+  padding: 4px 6px;
+  border: 1px solid #dee2e6;
+}
+
+.result {
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-align: center;
+  min-width: 50px;
+}
+
+.result.win {
+  background: #d4edda;
+  color: #155724;
+}
+
+.result.loss {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.result.push {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.result.blackjack {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.result.bust {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.payout {
+  display: block;
+  font-size: 9px;
+  margin-top: 1px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .simulator-layout {
+    flex-direction: column;
+  }
+  
+  .side-panel {
+    width: 100%;
+    order: -1;
+  }
+  
+  .played-hands {
+    max-height: 400px;
+  }
 }

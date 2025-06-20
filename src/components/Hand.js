@@ -2,7 +2,7 @@ import React from 'react';
 import Card from './Card';
 import './Hand.css';
 
-const Hand = ({ cards, total, bet, isDealer = false, hideFirstCard = false, isBlackjack = false }) => {
+const Hand = ({ cards, total, bet, isDealer = false, hideHoleCard = false, isBlackjack = false }) => {
   return (
     <div className="hand">
       <div className="hand-cards">
@@ -10,13 +10,13 @@ const Hand = ({ cards, total, bet, isDealer = false, hideFirstCard = false, isBl
           <Card 
             key={index} 
             card={card} 
-            hidden={isDealer && index === 0 && hideFirstCard}
+            hidden={isDealer && index === 1 && hideHoleCard}
           />
         ))}
       </div>
       <div className="hand-info">
         <div className="hand-total">
-          Total: {hideFirstCard && isDealer ? '?' : total}
+          Total: {hideHoleCard && isDealer ? '?' : total}
           {isBlackjack && <span className="blackjack">BLACKJACK!</span>}
         </div>
         {!isDealer && (

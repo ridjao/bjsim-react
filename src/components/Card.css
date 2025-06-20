@@ -1,18 +1,18 @@
 .card {
-  width: 60px;
-  height: 84px;
-  border: 2px solid #333;
-  border-radius: 8px;
+  width: 45px;
+  height: 63px;
+  border: 1px solid #333;
+  border-radius: 6px;
   background: white;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 2px;
+  margin: 1px;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 12px;
   position: relative;
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
 }
 
 .card.red {
@@ -29,16 +29,16 @@
 }
 
 .card-back {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: bold;
 }
 
 .card-rank {
-  font-size: 16px;
+  font-size: 12px;
   line-height: 1;
 }
 
 .card-suit {
-  font-size: 20px;
+  font-size: 14px;
   line-height: 1;
 }

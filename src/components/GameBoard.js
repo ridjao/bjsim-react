@@ -4,6 +4,7 @@ import { Player } from '../game/Player';
 import { interactive } from '../game/Strategy';
 import PlayerComponent from './Player';
 import GameControls from './GameControls';
+import DevMode from './DevMode';
 import './GameBoard.css';
 
 const GameBoard = () => {
@@ -11,13 +12,51 @@ const GameBoard = () => {
   const [gameState, setGameState] = useState('waiting'); // waiting, playing, finished
   const [currentGameData, setCurrentGameData] = useState(null);
   const [currentPlayerHand, setCurrentPlayerHand] = useState(0);
-  const [hideFirstCard, setHideFirstCard] = useState(true);
+  const [hideHoleCard, setHideHoleCard] = useState(true);
+  const [finishedHands, setFinishedHands] = useState(new Set());
+  const [gameStats, setGameStats] = useState({
+    gamesPlayed: 0,
+    wins: 0,
+    losses: 0,
+    pushes: 0,
+    blackjacks: 0,
+    busts: 0,
+    earnings: 0,
+    totalBet: 0
+  });
+  const [devModeState, setDevModeState] = useState({
+    enabled: false,
+    cards: []
+  });
 
   const initializeGame = () => {
     const players = [new Player("You", interactive)];
     const newGame = new Game(players);
+    
+    // Apply dev mode settings if they exist
+    if (devModeState.enabled && newGame.shoe) {
+      newGame.shoe.setDevMode(true);
+      if (devModeState.cards.length > 0) {
+        newGame.shoe.setPreSelectedCards(devModeState.cards);
+      }
+    }
+    
     setGame(newGame);
     return newGame;
+  };
+
+  const findNextPlayableHand = (gameData) => {
+    if (!gameData || !gameData.players[0]) return -1;
+    
+    const totalHands = gameData.players[0].hands.length;
+    for (let i = 0; i < totalHands; i++) {
+      const hand = gameData.players[0].hands[i];
+      // Hand is playable if it's not finished and not busted and not 21
+      if (!finishedHands.has(i) && hand.total !== -1 && hand.total !== 21) {
+        return i;
+      }
+    }
+    return -1; // No more playable hands
   };
 
   const dealNewHand = () => {
@@ -27,13 +66,18 @@ const GameBoard = () => {
     } else {
       // Clear previous hands before dealing new ones
       currentGame.clearHands();
+      // Reset dev card index for new hand
+      if (currentGame.shoe) {
+        currentGame.shoe.resetDevCardIndex();
+      }
     }
 
     const gameData = currentGame.dealSingle();
     setCurrentGameData(gameData);
     setGameState('playing');
     setCurrentPlayerHand(0);
-    setHideFirstCard(true);
+    setHideHoleCard(true);
+    setFinishedHands(new Set());
   };
 
   const playerHit = () => {
@@ -42,15 +86,53 @@ const GameBoard = () => {
     const gameData = game.playerAction(0, currentPlayerHand, 'h');
     setCurrentGameData(gameData);
 
-    // Check if player busted
+    // Check if current hand is finished (busted or 21)
     const playerTotal = gameData.players[0].hands[currentPlayerHand].total;
     if (playerTotal === -1 || playerTotal === 21) {
-      finishRound();
+      // Mark current hand as finished
+      const newFinishedHands = new Set(finishedHands);
+      newFinishedHands.add(currentPlayerHand);
+      setFinishedHands(newFinishedHands);
+      
+      // Find next playable hand
+      const nextHand = findNextPlayableHandWithSet(gameData, newFinishedHands);
+      if (nextHand !== -1) {
+        setCurrentPlayerHand(nextHand);
+      } else {
+        finishRound();
+      }
     }
   };
 
   const playerStand = () => {
-    finishRound();
+    if (!currentGameData) return;
+    
+    // Mark current hand as finished
+    const newFinishedHands = new Set(finishedHands);
+    newFinishedHands.add(currentPlayerHand);
+    setFinishedHands(newFinishedHands);
+    
+    // Find next playable hand with the updated finished hands
+    const nextHand = findNextPlayableHandWithSet(currentGameData, newFinishedHands);
+    if (nextHand !== -1) {
+      setCurrentPlayerHand(nextHand);
+    } else {
+      finishRound();
+    }
+  };
+
+  const findNextPlayableHandWithSet = (gameData, finishedHandsSet) => {
+    if (!gameData || !gameData.players[0]) return -1;
+    
+    const totalHands = gameData.players[0].hands.length;
+    for (let i = 0; i < totalHands; i++) {
+      const hand = gameData.players[0].hands[i];
+      // Hand is playable if it's not finished and not busted and not 21
+      if (!finishedHandsSet.has(i) && hand.total !== -1 && hand.total !== 21) {
+        return i;
+      }
+    }
+    return -1; // No more playable hands
   };
 
   const playerDouble = () => {
@@ -58,7 +140,19 @@ const GameBoard = () => {
 
     const gameData = game.playerAction(0, currentPlayerHand, 'd');
     setCurrentGameData(gameData);
-    finishRound();
+    
+    // After double, hand is automatically finished
+    const newFinishedHands = new Set(finishedHands);
+    newFinishedHands.add(currentPlayerHand);
+    setFinishedHands(newFinishedHands);
+    
+    // Find next playable hand
+    const nextHand = findNextPlayableHandWithSet(gameData, newFinishedHands);
+    if (nextHand !== -1) {
+      setCurrentPlayerHand(nextHand);
+    } else {
+      finishRound();
+    }
   };
 
   const playerSplit = () => {
@@ -66,32 +160,149 @@ const GameBoard = () => {
 
     const gameData = game.playerAction(0, currentPlayerHand, 'p');
     setCurrentGameData(gameData);
+    // After split, continue playing the first hand
+    setCurrentPlayerHand(0);
   };
 
   const finishRound = () => {
     if (!game) return;
 
-    setHideFirstCard(false);
+    setHideHoleCard(false);
     
     // Simulate dealer play and determine winner
     setTimeout(() => {
       const finalGameData = game.finishRound();
       setCurrentGameData(finalGameData);
       setGameState('finished');
+      updateGameStats(finalGameData);
     }, 1000);
+  };
+
+  const canHit = () => {
+    if (!currentGameData || gameState !== 'playing') return false;
+    if (finishedHands.has(currentPlayerHand)) return false;
+    const currentHand = currentGameData.players[0].hands[currentPlayerHand];
+    return currentHand.total !== -1 && currentHand.total !== 21;
   };
 
   const canDouble = () => {
     if (!currentGameData || gameState !== 'playing') return false;
+    if (finishedHands.has(currentPlayerHand)) return false;
     const currentHand = currentGameData.players[0].hands[currentPlayerHand];
-    return currentHand.cards.length === 2;
+    return currentHand.cards.length === 2 && currentHand.total !== -1 && currentHand.total !== 21;
   };
 
   const canSplit = () => {
     if (!currentGameData || gameState !== 'playing') return false;
+    if (finishedHands.has(currentPlayerHand)) return false;
     const currentHand = currentGameData.players[0].hands[currentPlayerHand];
     return currentHand.cards.length === 2 && 
-           currentHand.cards[0].charAt(0) === currentHand.cards[1].charAt(0);
+           currentHand.cards[0].charAt(0) === currentHand.cards[1].charAt(0) &&
+           currentHand.total !== -1 && currentHand.total !== 21;
+  };
+
+  const canStand = () => {
+    if (!currentGameData || gameState !== 'playing') return false;
+    if (finishedHands.has(currentPlayerHand)) return false;
+    const currentHand = currentGameData.players[0].hands[currentPlayerHand];
+    return currentHand.total !== -1;
+  };
+
+  const updateGameStats = (gameData) => {
+    if (!gameData || !gameData.players[0]) return;
+
+    let totalBet = 0;
+    let totalEarnings = 0;
+    let wins = 0;
+    let losses = 0;
+    let pushes = 0;
+    let blackjacks = 0;
+    let busts = 0;
+
+    const dealerHand = gameData.dealer.hands[0];
+    const dealerTotal = dealerHand.total;
+    const dealerBj = dealerHand.isBlackjack;
+
+    // Calculate stats for each hand
+    for (const hand of gameData.players[0].hands) {
+      const bet = hand.bet;
+      totalBet += bet;
+      
+      const playerTotal = hand.total;
+      const playerBj = hand.isBlackjack;
+
+      if (playerTotal === -1) {
+        // Player busted
+        busts++;
+        losses++;
+        totalEarnings -= bet;
+      } else if (dealerTotal === -1) {
+        // Dealer busted, player wins
+        wins++;
+        totalEarnings += bet;
+      } else if (playerBj && !dealerBj) {
+        // Player blackjack wins
+        blackjacks++;
+        wins++;
+        totalEarnings += bet * 1.5; // Blackjack pays 3:2
+      } else if (dealerBj && !playerBj) {
+        // Dealer blackjack wins
+        losses++;
+        totalEarnings -= bet;
+      } else if (playerBj && dealerBj) {
+        // Both blackjack - push
+        pushes++;
+      } else if (playerTotal > dealerTotal) {
+        // Player wins
+        wins++;
+        totalEarnings += bet;
+      } else if (playerTotal < dealerTotal) {
+        // Dealer wins
+        losses++;
+        totalEarnings -= bet;
+      } else {
+        // Push
+        pushes++;
+      }
+    }
+
+    setGameStats(prevStats => ({
+      gamesPlayed: prevStats.gamesPlayed + 1,
+      wins: prevStats.wins + wins,
+      losses: prevStats.losses + losses,
+      pushes: prevStats.pushes + pushes,
+      blackjacks: prevStats.blackjacks + blackjacks,
+      busts: prevStats.busts + busts,
+      earnings: prevStats.earnings + totalEarnings,
+      totalBet: prevStats.totalBet + totalBet
+    }));
+  };
+
+  const resetStats = () => {
+    setGameStats({
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      pushes: 0,
+      blackjacks: 0,
+      busts: 0,
+      earnings: 0,
+      totalBet: 0
+    });
+  };
+
+  const handleDevCardsChanged = (cards) => {
+    setDevModeState(prev => ({
+      ...prev,
+      cards
+    }));
+  };
+
+  const handleDevModeToggle = (enabled) => {
+    setDevModeState(prev => ({
+      ...prev,
+      enabled
+    }));
   };
 
   const getGameResult = () => {
@@ -114,42 +325,130 @@ const GameBoard = () => {
 
   return (
     <div className="game-board">
-      <h2>Interactive Blackjack Game</h2>
-      
-      <GameControls
-        onDeal={dealNewHand}
-        onHit={playerHit}
-        onStand={playerStand}
-        onDouble={playerDouble}
-        onSplit={playerSplit}
-        gameState={gameState}
-        canDouble={canDouble()}
-        canSplit={canSplit()}
-      />
+      <div className="game-header">
+        {gameState === 'finished' && (
+          <div className="game-result-banner">
+            <h3>{getGameResult()}</h3>
+          </div>
+        )}
+      </div>
 
-      {currentGameData && (
-        <div className="game-area">
-          <PlayerComponent
-            player={currentGameData.dealer}
-            isDealer={true}
-            hideFirstCard={hideFirstCard}
+      <div className="game-layout">
+        <div className="main-content">
+          {currentGameData && (
+            <div className="game-area">
+              <PlayerComponent
+                player={currentGameData.dealer}
+                isDealer={true}
+                hideHoleCard={hideHoleCard}
+              />
+              
+              {currentGameData.players.map((player, index) => (
+                <PlayerComponent
+                  key={index}
+                  player={player}
+                  isDealer={false}
+                  currentHandIndex={gameState === 'playing' ? currentPlayerHand : -1}
+                  finishedHands={finishedHands}
+                />
+              ))}
+            </div>
+          )}
+
+          <GameControls
+            onDeal={dealNewHand}
+            onHit={playerHit}
+            onStand={playerStand}
+            onDouble={playerDouble}
+            onSplit={playerSplit}
+            gameState={gameState}
+            canHit={canHit()}
+            canStand={canStand()}
+            canDouble={canDouble()}
+            canSplit={canSplit()}
           />
-          
-          {currentGameData.players.map((player, index) => (
-            <PlayerComponent
-              key={index}
-              player={player}
-              isDealer={false}
-            />
-          ))}
-        </div>
-      )}
 
-      {gameState === 'finished' && (
-        <div className="game-result">
-          <h3>{getGameResult()}</h3>
         </div>
-      )}
+
+        <div className="side-panel">
+          <div className="game-stats">
+            <div className="stats-header">
+              <h3>Statistics</h3>
+              <button className="btn btn-secondary reset-btn" onClick={resetStats}>
+                Reset
+              </button>
+            </div>
+            
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-label">Games</div>
+                <div className="stat-value">{gameStats.gamesPlayed}</div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-label">Wins</div>
+                <div className="stat-value wins">{gameStats.wins}</div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-label">Losses</div>
+                <div className="stat-value losses">{gameStats.losses}</div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-label">Pushes</div>
+                <div className="stat-value">{gameStats.pushes}</div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-label">Blackjacks</div>
+                <div className="stat-value blackjacks">{gameStats.blackjacks}</div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-label">Busts</div>
+                <div className="stat-value busts">{gameStats.busts}</div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-label">Win Rate</div>
+                <div className="stat-value">
+                  {gameStats.gamesPlayed > 0 
+                    ? `${((gameStats.wins / gameStats.gamesPlayed) * 100).toFixed(1)}%`
+                    : '0%'}
+                </div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-label">Earnings</div>
+                <div className={`stat-value ${gameStats.earnings >= 0 ? 'earnings-positive' : 'earnings-negative'}`}>
+                  ${gameStats.earnings.toFixed(2)}
+                </div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-label">Total Bet</div>
+                <div className="stat-value">${gameStats.totalBet.toFixed(2)}</div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-label">Return</div>
+                <div className={`stat-value ${gameStats.earnings >= 0 ? 'earnings-positive' : 'earnings-negative'}`}>
+                  {gameStats.totalBet > 0 
+                    ? `${(((gameStats.totalBet + gameStats.earnings) / gameStats.totalBet) * 100).toFixed(1)}%`
+                    : '0%'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DevMode 
+            game={game}
+            onCardsChanged={handleDevCardsChanged}
+            onDevModeToggle={handleDevModeToggle}
+          />
+        </div>
+      </div>
     </div>
   );
 };
