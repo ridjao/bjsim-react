@@ -271,6 +271,23 @@
   color: #dc3545;
 }
 
+/* Match interactive mode stat colors */
+.stat-value.wins {
+  color: #28a745;
+}
+
+.stat-value.losses {
+  color: #dc3545;
+}
+
+.stat-value.blackjacks {
+  color: #ffc107;
+}
+
+.stat-value.busts {
+  color: #fd7e14;
+}
+
 /* Played Hands Panel */
 .played-hands {
   background: white;

@@ -345,11 +345,11 @@ const Simulator = () => {
                   </div>
                   <div className="stat">
                     <span className="stat-label">Wins:</span>
-                    <span className="stat-value">{player.wins.toLocaleString()}</span>
+                    <span className="stat-value wins">{player.wins.toLocaleString()}</span>
                   </div>
                   <div className="stat">
                     <span className="stat-label">Losses:</span>
-                    <span className="stat-value">{player.losses.toLocaleString()}</span>
+                    <span className="stat-value losses">{player.losses.toLocaleString()}</span>
                   </div>
                   <div className="stat">
                     <span className="stat-label">Pushes:</span>
@@ -357,11 +357,11 @@ const Simulator = () => {
                   </div>
                   <div className="stat">
                     <span className="stat-label">Blackjacks:</span>
-                    <span className="stat-value">{player.blackjacks.toLocaleString()}</span>
+                    <span className="stat-value blackjacks">{player.blackjacks.toLocaleString()}</span>
                   </div>
                   <div className="stat">
                     <span className="stat-label">Busts:</span>
-                    <span className="stat-value">{player.busts.toLocaleString()}</span>
+                    <span className="stat-value busts">{player.busts.toLocaleString()}</span>
                   </div>
                   <div className="stat">
                     <span className="stat-label">Win Rate:</span>
