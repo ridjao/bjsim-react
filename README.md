@@ -103,7 +103,7 @@ Runs the app in development mode on [http://localhost:3000](http://localhost:300
 Features lightning-fast startup (~200ms) and instant Hot Module Replacement with Vite.
 
 ### `npm run build`
-Builds the app for production to the `build` folder.  
+Builds the app for production to the `dist` folder.  
 Creates optimized bundles with tree-shaking and modern JavaScript features.
 
 ### `npm run preview`
