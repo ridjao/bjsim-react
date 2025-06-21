@@ -28,7 +28,10 @@ export class BasicStrategy extends Strategy {
     if (pairRank === 11) return 'p'; // Always split Aces
     if (pairRank === 8) return 'p'; // Always split 8s
     if (pairRank === 10) return 's'; // Never split 10s
-    if (pairRank === 5) return 'd'; // Never split 5s, double instead
+    if (pairRank === 5) {
+      // Never split 5s, treat as hard 10: double vs 2-9, hit vs 10/A
+      return dealerTotal <= 9 ? 'd' : 'h';
+    }
     if (pairRank === 4) return 'h'; // Never split 4s
     
     if (pairRank === 9) {

@@ -354,7 +354,7 @@ const GameBoard = () => {
       if (pairRank === 11) return "Always split Aces";
       if (pairRank === 8) return "Always split 8s"; 
       if (pairRank === 10) return "Never split 10s";
-      if (pairRank === 5) return "Double instead of splitting 5s";
+      if (pairRank === 5) return `Treat 5s as hard 10 vs dealer ${dealerTotal}`;
       return `${action === 'p' ? 'Split' : 'Don\'t split'} ${pairRank}s vs dealer ${dealerTotal}`;
     }
     
