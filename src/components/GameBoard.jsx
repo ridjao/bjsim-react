@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Game } from '../game/Game';
 import { Player } from '../game/Player';
 import { interactive, basic } from '../game/Strategy';
-import PlayerComponent from './Player';
-import GameControls from './GameControls';
-import DevMode from './DevMode';
+import PlayerComponent from './Player.jsx';
+import GameControls from './GameControls.jsx';
+import DevMode from './DevMode.jsx';
 import './GameBoard.css';
 
 const GameBoard = () => {

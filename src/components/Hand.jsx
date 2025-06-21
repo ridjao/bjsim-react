@@ -1,5 +1,5 @@
 import React from 'react';
-import Card from './Card';
+import Card from './Card.jsx';
 import './Hand.css';
 
 const Hand = ({ cards, total, bet, isDealer = false, hideHoleCard = false, isBlackjack = false }) => {

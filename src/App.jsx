@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Simulator from './components/Simulator';
-import GameBoard from './components/GameBoard';
+import Simulator from './components/Simulator.jsx';
+import GameBoard from './components/GameBoard.jsx';
 import './App.css';
 
 function App() {

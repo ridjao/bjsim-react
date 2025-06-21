@@ -15,6 +15,8 @@ This file tracks planned features and improvements for the blackjack simulator.
 
 ## Completed Features
 
+- [x] **Migration from Create React App to Vite** - Modernized build tooling for better performance and development experience
+
 Check the git history for implemented features and bug fixes.
 
 ---

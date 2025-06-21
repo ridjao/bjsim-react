@@ -1,5 +1,5 @@
 import React from 'react';
-import Hand from './Hand';
+import Hand from './Hand.jsx';
 import './Player.css';
 
 const Player = ({ player, isDealer = false, hideHoleCard = false, currentHandIndex = -1, finishedHands = new Set() }) => {
