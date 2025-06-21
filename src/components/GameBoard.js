@@ -46,19 +46,6 @@ const GameBoard = () => {
     return newGame;
   };
 
-  const findNextPlayableHand = (gameData) => {
-    if (!gameData || !gameData.players[0]) return -1;
-    
-    const totalHands = gameData.players[0].hands.length;
-    for (let i = 0; i < totalHands; i++) {
-      const hand = gameData.players[0].hands[i];
-      // Hand is playable if it's not finished and not busted and not 21
-      if (!finishedHands.has(i) && hand.total !== -1 && hand.total !== 21) {
-        return i;
-      }
-    }
-    return -1; // No more playable hands
-  };
 
   const dealNewHand = () => {
     let currentGame = game;

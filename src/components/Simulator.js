@@ -35,11 +35,19 @@ const Simulator = () => {
       }
 
       console.log(`🎯 Setting up simulation for ${gamesToRun} games`);
-      setIsRunning(true);
+      
+      // First reset progress and results immediately
       setProgress(0);
       setResults(null);
       setPlayedHands([]);
-      setStartTime(Date.now());
+      
+      // Give React time to render the reset state
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Now start the simulation
+      setIsRunning(true);
+      const simulationStartTime = Date.now();
+      setStartTime(simulationStartTime);
       
       console.log('✅ State updated, isRunning should now be true');
 
@@ -49,11 +57,8 @@ const Simulator = () => {
     for (let i = 0; i < simulationParams.players; i++) {
       players.push(new Player(`Player ${i + 1}`, strategy));
     }
-
-    // Run simulation with progress updates and hand tracking
-    const startTime = Date.now();
     
-    // Allow React to render the progress indicator first
+    // Allow React to render the progress indicator with 0% and running state
     await new Promise(resolve => setTimeout(resolve, 50));
     
     // Create new players for each chunk to avoid cumulative stats
@@ -72,9 +77,14 @@ const Simulator = () => {
       totalGames: 0,
       players: players.map(player => ({
         name: player.getName(),
-        earnings: 0,
+        gamesPlayed: 0,
         wins: 0,
-        pairs: 0,
+        losses: 0,
+        pushes: 0,
+        blackjacks: 0,
+        busts: 0,
+        earnings: 0,
+        totalBet: 0,
         expectedValue: 0
       }))
     };
@@ -93,11 +103,51 @@ const Simulator = () => {
       
       const game = new Game(chunkPlayers, params);
       
+      // Track detailed statistics for this chunk
+      let chunkDetailedStats = {
+        players: totalStats.players.map(() => ({
+          gamesPlayed: 0,
+          wins: 0,
+          losses: 0,
+          pushes: 0,
+          blackjacks: 0,
+          busts: 0,
+          totalBet: 0
+        }))
+      };
+      
       // Run this chunk
       const chunkResults = game.run(
         currentChunkSize,
         () => {}, // No progress callback for individual chunks
         (handData) => {
+          // Track detailed hand statistics from actual game results
+          if (handData && handData.players) {
+            handData.players.forEach((player, playerIndex) => {
+              if (player.hands && chunkDetailedStats.players[playerIndex]) {
+                player.hands.forEach(hand => {
+                  chunkDetailedStats.players[playerIndex].gamesPlayed++;
+                  chunkDetailedStats.players[playerIndex].totalBet += hand.bet || 1;
+                  
+                  // Count actual hand outcomes from game results
+                  if (hand.result === 'win') {
+                    chunkDetailedStats.players[playerIndex].wins++;
+                  } else if (hand.result === 'blackjack') {
+                    chunkDetailedStats.players[playerIndex].wins++;
+                    chunkDetailedStats.players[playerIndex].blackjacks++;
+                  } else if (hand.result === 'loss') {
+                    chunkDetailedStats.players[playerIndex].losses++;
+                  } else if (hand.result === 'bust') {
+                    chunkDetailedStats.players[playerIndex].losses++;
+                    chunkDetailedStats.players[playerIndex].busts++;
+                  } else if (hand.result === 'push') {
+                    chunkDetailedStats.players[playerIndex].pushes++;
+                  }
+                });
+              }
+            });
+          }
+          
           // Only track hands if total games <= 1000 to avoid memory issues
           if (gamesToRun <= 1000) {
             setPlayedHands(prev => [...prev, handData]);
@@ -108,10 +158,21 @@ const Simulator = () => {
       // Add this chunk's results to total
       totalStats.totalGames += currentChunkSize;
       totalStats.players.forEach((player, index) => {
-        player.earnings += chunkResults.players[index].earnings;
-        player.wins += chunkResults.players[index].wins;
-        player.pairs += chunkResults.players[index].pairs;
-        player.expectedValue = (player.earnings / totalStats.totalGames) * 100;
+        const chunkResult = chunkResults.players[index];
+        const detailedStats = chunkDetailedStats.players[index];
+        
+        // Add statistics from detailed tracking
+        player.earnings += chunkResult.earnings;
+        player.gamesPlayed += detailedStats.gamesPlayed;
+        player.wins += detailedStats.wins;
+        player.losses += detailedStats.losses;
+        player.pushes += detailedStats.pushes;
+        player.blackjacks += detailedStats.blackjacks;
+        player.busts += detailedStats.busts;
+        player.totalBet += detailedStats.totalBet;
+        
+        // Calculate expected value
+        player.expectedValue = totalStats.totalGames > 0 ? (player.earnings / totalStats.totalGames) * 100 : 0;
       });
       
       gamesCompleted += currentChunkSize;
@@ -133,7 +194,7 @@ const Simulator = () => {
     };
     
     const endTime = Date.now();
-    const elapsedSeconds = (endTime - startTime) / 1000;
+    const elapsedSeconds = (endTime - simulationStartTime) / 1000;
     
       setResults({
         ...finalResults,
@@ -279,25 +340,49 @@ const Simulator = () => {
                 <h4>{player.name}</h4>
                 <div className="result-stats">
                   <div className="stat">
-                    <span className="stat-label">Earnings:</span>
-                    <span className={`stat-value ${player.earnings >= 0 ? 'positive' : 'negative'}`}>
-                      ${player.earnings.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="stat">
-                    <span className="stat-label">Expected Value:</span>
-                    <span className={`stat-value ${player.expectedValue >= 0 ? 'positive' : 'negative'}`}>
-                      {player.expectedValue.toFixed(3)}%
-                    </span>
+                    <span className="stat-label">Games:</span>
+                    <span className="stat-value">{player.gamesPlayed.toLocaleString()}</span>
                   </div>
                   <div className="stat">
                     <span className="stat-label">Wins:</span>
                     <span className="stat-value">{player.wins.toLocaleString()}</span>
                   </div>
                   <div className="stat">
+                    <span className="stat-label">Losses:</span>
+                    <span className="stat-value">{player.losses.toLocaleString()}</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-label">Pushes:</span>
+                    <span className="stat-value">{player.pushes.toLocaleString()}</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-label">Blackjacks:</span>
+                    <span className="stat-value">{player.blackjacks.toLocaleString()}</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-label">Busts:</span>
+                    <span className="stat-value">{player.busts.toLocaleString()}</span>
+                  </div>
+                  <div className="stat">
                     <span className="stat-label">Win Rate:</span>
                     <span className="stat-value">
-                      {((player.wins / results.totalGames) * 100).toFixed(2)}%
+                      {player.gamesPlayed > 0 ? ((player.wins / player.gamesPlayed) * 100).toFixed(1) : '0.0'}%
+                    </span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-label">Earnings:</span>
+                    <span className={`stat-value ${player.earnings >= 0 ? 'positive' : 'negative'}`}>
+                      ${player.earnings.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-label">Total Bet:</span>
+                    <span className="stat-value">${player.totalBet.toFixed(2)}</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-label">Return:</span>
+                    <span className={`stat-value ${((player.totalBet + player.earnings) / player.totalBet * 100) >= 100 ? 'positive' : 'negative'}`}>
+                      {player.totalBet > 0 ? (((player.totalBet + player.earnings) / player.totalBet) * 100).toFixed(1) : '0.0'}%
                     </span>
                   </div>
                 </div>
