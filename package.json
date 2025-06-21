@@ -10,7 +10,7 @@
     "puppeteer": "^24.10.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-scripts": "^5.1.0-next.26",
+    "react-scripts": "^5.0.1",
     "web-vitals": "^5.0.3"
   },
   "scripts": {
