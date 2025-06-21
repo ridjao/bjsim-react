@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Game } from '../game/Game';
 import { Player } from '../game/Player';
-import { interactive } from '../game/Strategy';
+import { interactive, basic } from '../game/Strategy';
 import PlayerComponent from './Player';
 import GameControls from './GameControls';
 import DevMode from './DevMode';
@@ -28,6 +28,7 @@ const GameBoard = () => {
     enabled: false,
     cards: []
   });
+  const [showHints, setShowHints] = useState(true);
 
   const initializeGame = () => {
     const players = [new Player("You", interactive)];
@@ -305,6 +306,83 @@ const GameBoard = () => {
     }));
   };
 
+  const getBasicStrategyHint = () => {
+    if (!currentGameData || gameState !== 'playing' || finishedHands.has(currentPlayerHand)) {
+      return null;
+    }
+
+    const playerHand = currentGameData.players[0].hands[currentPlayerHand];
+    const dealerUpCard = currentGameData.dealer.hands[0].cards[0];
+    
+    if (!playerHand || !dealerUpCard) return null;
+
+    // Parse dealer up card value
+    const dealerValue = dealerUpCard.charAt(0);
+    let dealerTotal;
+    if (dealerValue === 'A') dealerTotal = 11;
+    else if (['K', 'Q', 'J', 'T'].includes(dealerValue)) dealerTotal = 10;
+    else dealerTotal = parseInt(dealerValue);
+
+    // Get player hand info
+    const playerTotal = playerHand.total;
+    
+    // Check if hand is soft (has an Ace counting as 11)
+    let hasAce = false;
+    let totalWithoutAces = 0;
+    for (const card of playerHand.cards) {
+      const rank = card.charAt(0);
+      if (rank === 'A') {
+        hasAce = true;
+      } else if (['K', 'Q', 'J', 'T'].includes(rank)) {
+        totalWithoutAces += 10;
+      } else {
+        totalWithoutAces += parseInt(rank);
+      }
+    }
+    const isPlayerSoft = hasAce && (totalWithoutAces + 11 <= 21);
+    
+    const isPair = playerHand.cards.length === 2 && 
+                   playerHand.cards[0].charAt(0) === playerHand.cards[1].charAt(0);
+
+    // Get basic strategy action
+    const action = basic.getAction(playerTotal, dealerTotal, isPlayerSoft, isPair, playerHand.cards);
+    
+    // Convert action to readable text
+    const actionMap = {
+      'h': 'Hit',
+      's': 'Stand', 
+      'd': 'Double',
+      'p': 'Split'
+    };
+
+    return {
+      action: actionMap[action] || 'Hit',
+      reason: getActionReason(action, playerTotal, dealerTotal, isPlayerSoft, isPair)
+    };
+  };
+
+  const getActionReason = (action, playerTotal, dealerTotal, isPlayerSoft, isPair) => {
+    if (isPair) {
+      const pairRank = playerTotal / 2;
+      if (pairRank === 11) return "Always split Aces";
+      if (pairRank === 8) return "Always split 8s"; 
+      if (pairRank === 10) return "Never split 10s";
+      if (pairRank === 5) return "Double instead of splitting 5s";
+      return `${action === 'p' ? 'Split' : 'Don\'t split'} ${pairRank}s vs dealer ${dealerTotal}`;
+    }
+    
+    if (isPlayerSoft) {
+      const softName = playerTotal === 21 ? '21' : playerTotal.toString();
+      return `Soft ${softName} vs dealer ${dealerTotal}`;
+    }
+    
+    if (action === 'd') {
+      return `Double on ${playerTotal} vs dealer ${dealerTotal}`;
+    }
+    
+    return `Hard ${playerTotal} vs dealer ${dealerTotal}`;
+  };
+
   const getGameResult = () => {
     if (!currentGameData || gameState !== 'finished') return '';
     
@@ -352,6 +430,37 @@ const GameBoard = () => {
                   finishedHands={finishedHands}
                 />
               ))}
+            </div>
+          )}
+
+          {showHints && gameState === 'playing' && getBasicStrategyHint() && (
+            <div className="strategy-hint">
+              <div className="hint-header">
+                <span className="hint-label">💡 Basic Strategy Hint:</span>
+                <button 
+                  className="hint-toggle"
+                  onClick={() => setShowHints(false)}
+                  title="Hide hints"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="hint-content">
+                <span className="hint-action">{getBasicStrategyHint().action}</span>
+                <span className="hint-reason">({getBasicStrategyHint().reason})</span>
+              </div>
+            </div>
+          )}
+
+          {!showHints && gameState === 'playing' && (
+            <div className="hint-toggle-container">
+              <button 
+                className="show-hint-btn"
+                onClick={() => setShowHints(true)}
+                title="Show basic strategy hints"
+              >
+                💡 Show Hints
+              </button>
             </div>
           )}
 

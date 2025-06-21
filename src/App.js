@@ -21,7 +21,7 @@ function App() {
             className={`nav-tab ${currentView === 'interactive' ? 'active' : ''}`}
             onClick={() => setCurrentView('interactive')}
           >
-            Interactive Game
+            Interactive
           </button>
         </nav>
       </header>

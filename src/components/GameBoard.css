@@ -163,6 +163,103 @@
   color: #dc3545;
 }
 
+/* Strategy Hint Styles */
+.strategy-hint {
+  background: linear-gradient(135deg, #e7f3ff, #cce7ff);
+  border: 2px solid #0066cc;
+  border-radius: 10px;
+  padding: 12px 15px;
+  margin: 15px 0;
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.2);
+  animation: hintSlideIn 0.3s ease-out;
+}
+
+.hint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.hint-label {
+  font-weight: bold;
+  color: #0066cc;
+  font-size: 14px;
+}
+
+.hint-toggle {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.hint-toggle:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.hint-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hint-action {
+  font-size: 16px;
+  font-weight: bold;
+  color: #0066cc;
+}
+
+.hint-reason {
+  font-size: 13px;
+  color: #555;
+  font-style: italic;
+}
+
+.hint-toggle-container {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.show-hint-btn {
+  background: #f8f9fa;
+  border: 2px dashed #0066cc;
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #0066cc;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.show-hint-btn:hover {
+  background: #e7f3ff;
+  border-style: solid;
+}
+
+@keyframes hintSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Responsive Layout */
 @media (max-width: 1024px) {
   .game-layout {
@@ -210,5 +307,22 @@
   
   .stat-value {
     font-size: 14px;
+  }
+  
+  .strategy-hint {
+    padding: 10px 12px;
+    margin: 10px 0;
+  }
+  
+  .hint-label {
+    font-size: 13px;
+  }
+  
+  .hint-action {
+    font-size: 15px;
+  }
+  
+  .hint-reason {
+    font-size: 12px;
   }
 }

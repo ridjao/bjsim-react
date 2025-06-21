@@ -16,24 +16,32 @@ const Simulator = () => {
     strategy: 'basic'
   });
   const [customGames, setCustomGames] = useState('');
+  const [startTime, setStartTime] = useState(null);
 
   const runSimulation = async () => {
-    // Get the actual number of games to run
-    let gamesToRun;
-    if (simulationParams.games === 'custom') {
-      gamesToRun = parseInt(customGames);
-      if (!gamesToRun || gamesToRun < 1) {
-        alert('Please enter a valid number of games (1 or greater)');
-        return;
+    try {
+      console.log('🚀 Starting runSimulation function');
+      
+      // Get the actual number of games to run
+      let gamesToRun;
+      if (simulationParams.games === 'custom') {
+        gamesToRun = parseInt(customGames);
+        if (!gamesToRun || gamesToRun < 1) {
+          alert('Please enter a valid number of games (1 or greater)');
+          return;
+        }
+      } else {
+        gamesToRun = simulationParams.games;
       }
-    } else {
-      gamesToRun = simulationParams.games;
-    }
 
-    setIsRunning(true);
-    setProgress(0);
-    setResults(null);
-    setPlayedHands([]);
+      console.log(`🎯 Setting up simulation for ${gamesToRun} games`);
+      setIsRunning(true);
+      setProgress(0);
+      setResults(null);
+      setPlayedHands([]);
+      setStartTime(Date.now());
+      
+      console.log('✅ State updated, isRunning should now be true');
 
     const players = [];
     const strategy = simulationParams.strategy === 'basic' ? basic : conservative;
@@ -42,36 +50,103 @@ const Simulator = () => {
       players.push(new Player(`Player ${i + 1}`, strategy));
     }
 
-    const params = new Parameters();
-    params.times = gamesToRun;
-    params.decks = simulationParams.decks;
-
-    const game = new Game(players, params);
-
     // Run simulation with progress updates and hand tracking
     const startTime = Date.now();
     
-    const finalResults = game.run(
-      gamesToRun, 
-      (progressData) => {
-        setProgress(progressData.progress);
-      },
-      (handData) => {
-        // Only track hands if games <= 1000 to avoid memory issues
-        if (gamesToRun <= 1000) {
-          setPlayedHands(prev => [...prev, handData]);
-        }
+    // Allow React to render the progress indicator first
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // Create new players for each chunk to avoid cumulative stats
+    const createFreshPlayers = () => {
+      const freshPlayers = [];
+      for (let i = 0; i < simulationParams.players; i++) {
+        freshPlayers.push(new Player(`Player ${i + 1}`, strategy));
       }
-    );
+      return freshPlayers;
+    };
+    
+    // Run simulation in chunks to show progress - fewer, larger chunks for speed
+    const chunkSize = Math.max(10000, Math.floor(gamesToRun / 20)); // Max 20 progress updates for speed
+    let gamesCompleted = 0;
+    let totalStats = {
+      totalGames: 0,
+      players: players.map(player => ({
+        name: player.getName(),
+        earnings: 0,
+        wins: 0,
+        pairs: 0,
+        expectedValue: 0
+      }))
+    };
+    
+    while (gamesCompleted < gamesToRun) {
+      const remainingGames = gamesToRun - gamesCompleted;
+      const currentChunkSize = Math.min(chunkSize, remainingGames);
+      
+      // Create fresh players for this chunk
+      const chunkPlayers = createFreshPlayers();
+      
+      // Set up game for this chunk
+      const params = new Parameters();
+      params.times = currentChunkSize;
+      params.decks = simulationParams.decks;
+      
+      const game = new Game(chunkPlayers, params);
+      
+      // Run this chunk
+      const chunkResults = game.run(
+        currentChunkSize,
+        () => {}, // No progress callback for individual chunks
+        (handData) => {
+          // Only track hands if total games <= 1000 to avoid memory issues
+          if (gamesToRun <= 1000) {
+            setPlayedHands(prev => [...prev, handData]);
+          }
+        }
+      );
+      
+      // Add this chunk's results to total
+      totalStats.totalGames += currentChunkSize;
+      totalStats.players.forEach((player, index) => {
+        player.earnings += chunkResults.players[index].earnings;
+        player.wins += chunkResults.players[index].wins;
+        player.pairs += chunkResults.players[index].pairs;
+        player.expectedValue = (player.earnings / totalStats.totalGames) * 100;
+      });
+      
+      gamesCompleted += currentChunkSize;
+      const progressPercent = (gamesCompleted / gamesToRun) * 100;
+      
+      // Update progress
+      setProgress(progressPercent);
+      
+      // Only yield control for very large simulations to keep speed up
+      if (gamesCompleted < gamesToRun && gamesToRun > 100000) {
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+    }
+    
+    const finalResults = {
+      players: totalStats.players,
+      totalGames: gamesToRun, // Ensure this matches exactly
+      elapsedTime: 0 // Will be calculated below
+    };
     
     const endTime = Date.now();
     const elapsedSeconds = (endTime - startTime) / 1000;
     
-    setResults({
-      ...finalResults,
-      elapsedTime: elapsedSeconds
-    });
-    setIsRunning(false);
+      setResults({
+        ...finalResults,
+        elapsedTime: elapsedSeconds
+      });
+      setIsRunning(false);
+      console.log('🏁 Simulation completed successfully');
+      
+    } catch (error) {
+      console.error('❌ ERROR in runSimulation:', error);
+      setIsRunning(false);
+      alert(`Simulation error: ${error.message}`);
+    }
   };
 
   const handleParamChange = (param, value) => {
@@ -80,6 +155,7 @@ const Simulator = () => {
       [param]: value
     }));
   };
+
 
   const formatCard = (cardStr) => {
     if (!cardStr) return '';
@@ -187,19 +263,9 @@ const Simulator = () => {
         </button>
       </div>
 
-      {isRunning && (
-        <div className="progress-container">
-          <div className="progress-bar">
-            <div 
-              className="progress-fill" 
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-          <div className="progress-text">{progress.toFixed(1)}%</div>
-        </div>
-      )}
 
-      {results && (
+
+          {results && (
         <div className="results">
           <h3>Simulation Results</h3>
           <div className="results-summary">
@@ -319,6 +385,44 @@ const Simulator = () => {
               </div>
             )}
           </div>
+
+          {(isRunning || progress > 0) && (simulationParams.games === 'custom' ? parseInt(customGames) || 0 : simulationParams.games) > 1000 && (
+            <div className={`simulation-progress ${!isRunning ? 'completed' : ''}`}>
+              <div className="progress-header">
+                <div className="progress-status">
+                  <span className={`status-icon ${!isRunning ? 'no-animation' : ''}`}>
+                    {isRunning ? '⚡' : '✅'}
+                  </span>
+                  <span className="status-text">
+                    {isRunning ? 'Simulation Running...' : 'Simulation Complete'}
+                  </span>
+                </div>
+                <div className="progress-percentage">{progress.toFixed(1)}%</div>
+              </div>
+              
+              <div className="progress-bar">
+                <div 
+                  className={`progress-fill ${!isRunning ? 'no-animation' : ''}`}
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              
+              <div className="progress-details">
+                <span className="games-info">
+                  {isRunning ? 'Processing' : 'Processed'} {(simulationParams.games === 'custom' ? parseInt(customGames) || 0 : simulationParams.games).toLocaleString()} games
+                </span>
+                <span className="estimated-time">
+                  {isRunning ? (
+                    progress > 5 && startTime ? 
+                      `Est. ${Math.max(0, ((100 - progress) / progress * (Date.now() - startTime) / 1000 / 60).toFixed(1))} min remaining` : 
+                      'Calculating...'
+                  ) : (
+                    results ? `Completed in ${results.elapsedTime.toFixed(2)} seconds` : 'Complete'
+                  )}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
