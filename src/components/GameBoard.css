@@ -260,6 +260,139 @@
   }
 }
 
+/* Player and Dealer Areas */
+.dealer-area, .player-area {
+  position: relative;
+}
+
+/* Win Indicator Styles */
+.win-indicator-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+
+.win-indicator {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 2px solid;
+  animation: winIndicatorPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  min-width: 80px;
+}
+
+.win-indicator-player {
+  border-color: #28a745;
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+}
+
+.win-indicator-dealer {
+  border-color: #dc3545;
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+}
+
+.win-indicator-push {
+  border-color: #ffc107;
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+}
+
+.win-graphic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.win-icon {
+  font-size: 20px;
+  animation: winIconBounce 2s infinite;
+}
+
+.win-text {
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 2px 0;
+  line-height: 1;
+}
+
+.win-indicator-player .win-text {
+  color: #28a745;
+}
+
+.win-indicator-dealer .win-text {
+  color: #dc3545;
+}
+
+.win-indicator-push .win-text {
+  color: #856404;
+}
+
+.win-arrow {
+  font-size: 24px;
+  font-weight: bold;
+  animation: winArrowPulse 1.5s infinite;
+}
+
+.win-indicator-player .win-arrow {
+  color: #28a745;
+}
+
+.win-indicator-dealer .win-arrow {
+  color: #dc3545;
+}
+
+.win-subtext {
+  font-size: 8px;
+  color: #666;
+  font-style: italic;
+  line-height: 1;
+}
+
+@keyframes winIndicatorPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-10deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes winIconBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes winArrowPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+
 /* Responsive Layout */
 @media (max-width: 1024px) {
   .game-layout {
@@ -324,5 +457,23 @@
   
   .hint-reason {
     font-size: 12px;
+  }
+  
+  /* Win indicator mobile adjustments */
+  .win-indicator {
+    padding: 6px 8px;
+    min-width: 60px;
+  }
+  
+  .win-icon {
+    font-size: 16px;
+  }
+  
+  .win-text {
+    font-size: 8px;
+  }
+  
+  .win-subtext {
+    font-size: 6px;
   }
 }

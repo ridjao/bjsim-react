@@ -388,6 +388,27 @@ const GameBoard = () => {
     return 'Push! It\'s a tie.';
   };
 
+  const getWinIndicator = () => {
+    if (!currentGameData || gameState !== 'finished') return null;
+    
+    const playerHand = currentGameData.players[0].hands[0];
+    const dealerHand = currentGameData.dealer.hands[0];
+    const dealerTotal = dealerHand.total;
+    const playerTotal = playerHand.total;
+
+    // Determine winner
+    let winner = 'push';
+    if (playerTotal === -1) winner = 'dealer';
+    else if (dealerTotal === -1) winner = 'player';
+    else if (playerHand.isBlackjack && !dealerHand.isBlackjack) winner = 'player';
+    else if (dealerHand.isBlackjack && !playerHand.isBlackjack) winner = 'dealer';
+    else if (playerHand.isBlackjack && dealerHand.isBlackjack) winner = 'push';
+    else if (playerTotal > dealerTotal) winner = 'player';
+    else if (playerTotal < dealerTotal) winner = 'dealer';
+
+    return { winner };
+  };
+
   return (
     <div className="game-board">
       <div className="game-header">
@@ -402,21 +423,59 @@ const GameBoard = () => {
         <div className="main-content">
           {currentGameData && (
             <div className="game-area">
-              <PlayerComponent
-                player={currentGameData.dealer}
-                isDealer={true}
-                hideHoleCard={hideHoleCard}
-              />
-              
-              {currentGameData.players.map((player, index) => (
+              <div className="dealer-area">
                 <PlayerComponent
-                  key={index}
-                  player={player}
-                  isDealer={false}
-                  currentHandIndex={gameState === 'playing' ? currentPlayerHand : -1}
-                  finishedHands={finishedHands}
+                  player={currentGameData.dealer}
+                  isDealer={true}
+                  hideHoleCard={hideHoleCard}
                 />
-              ))}
+                {/* Dealer Win Indicator */}
+                {gameState === 'finished' && getWinIndicator() && getWinIndicator().winner === 'dealer' && (
+                  <div className="win-indicator-overlay">
+                    <div className="win-indicator win-indicator-dealer">
+                      <div className="win-graphic">
+                        <div className="win-icon">🏆</div>
+                        <div className="win-text">DEALER WINS</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="player-area">
+                {currentGameData.players.map((player, index) => (
+                  <PlayerComponent
+                    key={index}
+                    player={player}
+                    isDealer={false}
+                    currentHandIndex={gameState === 'playing' ? currentPlayerHand : -1}
+                    finishedHands={finishedHands}
+                  />
+                ))}
+                {/* Player Win Indicator */}
+                {gameState === 'finished' && getWinIndicator() && getWinIndicator().winner === 'player' && (
+                  <div className="win-indicator-overlay">
+                    <div className="win-indicator win-indicator-player">
+                      <div className="win-graphic">
+                        <div className="win-icon">🎉</div>
+                        <div className="win-text">YOU WIN!</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/* Push Indicator - same location as player win */}
+                {gameState === 'finished' && getWinIndicator() && getWinIndicator().winner === 'push' && (
+                  <div className="win-indicator-overlay">
+                    <div className="win-indicator win-indicator-push">
+                      <div className="win-graphic">
+                        <div className="win-icon">🤝</div>
+                        <div className="win-text">PUSH</div>
+                        <div className="win-subtext">It's a tie!</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
