@@ -101,7 +101,7 @@ export class Player {
     const playerTotal = hand.getTotal();
     const soft = hand.isSoft();
     const pair = hand.isPair();
-    const cards = hand.getCards().length;
+    const cards = hand.getCards();
     
     return this.strategy.getAction(playerTotal, dealerTotal, soft, pair, cards);
   }

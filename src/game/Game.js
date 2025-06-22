@@ -127,6 +127,7 @@ export class Game {
         allBjs = false;
 
         let action = player.getAction(i, this.dealer.total(0));
+        let isFirstAction = true;
 
         if (action === 'r') {
           player.surrender(i);
@@ -137,7 +138,8 @@ export class Game {
               splits++;
             }
 
-            if (action === 'd') {
+            // Only allow doubling on first action with exactly 2 cards
+            if (action === 'd' && isFirstAction && player.getHand(i).getCards().length === 2) {
               player.doubleBet(i);
             }
 
@@ -151,6 +153,7 @@ export class Game {
               break;
             }
 
+            isFirstAction = false; // After first action, no more doubling allowed
             action = player.getAction(i, this.dealer.total(0));
           }
         }
@@ -496,6 +499,7 @@ export class Game {
   captureHandData(handNumber) {
     return {
       handNumber,
+      cardCount: this.shoe.count(), // Capture card count before player acts
       players: this.players.map(player => ({
         name: player.getName(),
         hands: player.getHands().map(hand => ({
@@ -541,7 +545,10 @@ export class Game {
             let result = 'push';
             let payout = 0;
             
-            if (playerTotal === -1) {
+            if (hand.isSurrendered()) {
+              result = 'surrender';
+              payout = -bet * 0.5; // Surrender loses half the bet
+            } else if (playerTotal === -1) {
               result = 'bust';
               payout = -bet;
             } else if (dealerTotal === -1) {
@@ -569,6 +576,8 @@ export class Game {
               total: hand.getTotal(), // Original total (may be same as final)
               bet: hand.getBet(),
               isBlackjack: hand.isBlackjack(),
+              isDoubled: hand.isDoubled(),
+              isSurrendered: hand.isSurrendered(),
               finalTotal: playerTotal,
               result,
               payout

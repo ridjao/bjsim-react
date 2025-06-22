@@ -140,6 +140,8 @@ const Simulator = () => {
                   } else if (hand.result === 'bust') {
                     chunkDetailedStats.players[playerIndex].losses++;
                     chunkDetailedStats.players[playerIndex].busts++;
+                  } else if (hand.result === 'surrender') {
+                    chunkDetailedStats.players[playerIndex].losses++;
                   } else if (hand.result === 'push') {
                     chunkDetailedStats.players[playerIndex].pushes++;
                   }
@@ -417,6 +419,9 @@ const Simulator = () => {
                   <div key={hand.handNumber} className="hand-record">
                     <div className="hand-header">
                       <span className="hand-number">#{hand.handNumber}</span>
+                      {hand.cardCount !== undefined && (
+                        <span className="card-count">Count: {hand.cardCount > 0 ? '+' : ''}{hand.cardCount}</span>
+                      )}
                     </div>
                     
                     <div className="hand-details">
@@ -451,6 +456,8 @@ const Simulator = () => {
                                 <span className="total">
                                   ({playerHand.finalTotal === -1 ? 'Bust' : playerHand.finalTotal})
                                 </span>
+                                {playerHand.isDoubled && <span className="action-indicator doubled">2X</span>}
+                                {playerHand.isSurrendered && <span className="action-indicator surrendered">SURR</span>}
                               </div>
                               <div className={`result ${playerHand.result}`}>
                                 {playerHand.result.toUpperCase()}

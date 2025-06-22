@@ -19,6 +19,14 @@ export class BasicStrategy extends Strategy {
       return this.getSoftAction(playerTotal, dealerTotal);
     }
     
+    // Check for surrender opportunities (only valid with exactly 2 cards)
+    if (cards && cards.length === 2 && !soft && !pair) {
+      if ((playerTotal === 16 && (dealerTotal === 9 || dealerTotal === 10 || dealerTotal === 11)) ||
+          (playerTotal === 15 && dealerTotal === 10)) {
+        return 'r';
+      }
+    }
+    
     return this.getHardAction(playerTotal, dealerTotal);
   }
 
