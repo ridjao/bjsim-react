@@ -412,11 +412,6 @@ const GameBoard = () => {
   return (
     <div className="game-board">
       <div className="game-header">
-        {gameState === 'finished' && (
-          <div className="game-result-banner">
-            <h3>{getGameResult()}</h3>
-          </div>
-        )}
       </div>
 
       <div className="game-layout">
@@ -526,6 +521,12 @@ const GameBoard = () => {
         </div>
 
         <div className="side-panel">
+          {gameState === 'finished' && (
+            <div className="game-result-banner">
+              <h3>{getGameResult()}</h3>
+            </div>
+          )}
+          
           <div className="game-stats">
             <div className="stats-header">
               <h3>Statistics</h3>

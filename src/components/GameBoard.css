@@ -211,8 +211,9 @@
 
 .hint-content {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  gap: 8px;
+  align-items: baseline;
 }
 
 .hint-action {
