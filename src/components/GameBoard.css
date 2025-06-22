@@ -403,7 +403,7 @@
     width: 100%;
     position: static;
     max-height: none;
-    order: -1; /* Move stats to top on mobile */
+    order: 1; /* Move stats to bottom when not fullscreen */
   }
   
   .stats-grid {

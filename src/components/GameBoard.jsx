@@ -479,6 +479,19 @@ const GameBoard = () => {
             </div>
           )}
 
+          <GameControls
+            onDeal={dealNewHand}
+            onHit={playerHit}
+            onStand={playerStand}
+            onDouble={playerDouble}
+            onSplit={playerSplit}
+            gameState={gameState}
+            canHit={canHit()}
+            canStand={canStand()}
+            canDouble={canDouble()}
+            canSplit={canSplit()}
+          />
+
           {showHints && gameState === 'playing' && getBasicStrategyHint() && (
             <div className="strategy-hint">
               <div className="hint-header">
@@ -509,19 +522,6 @@ const GameBoard = () => {
               </button>
             </div>
           )}
-
-          <GameControls
-            onDeal={dealNewHand}
-            onHit={playerHit}
-            onStand={playerStand}
-            onDouble={playerDouble}
-            onSplit={playerSplit}
-            gameState={gameState}
-            canHit={canHit()}
-            canStand={canStand()}
-            canDouble={canDouble()}
-            canSplit={canSplit()}
-          />
 
         </div>
 

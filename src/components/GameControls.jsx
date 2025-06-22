@@ -25,38 +25,36 @@ const GameControls = ({
             Deal New Hand
           </button>
           
-          {gameState === 'playing' && (
-            <div className="player-actions">
-              <button 
-                className="btn btn-success" 
-                onClick={onHit}
-                disabled={!canHit}
-              >
-                Hit
-              </button>
-              <button 
-                className="btn btn-warning" 
-                onClick={onStand}
-                disabled={!canStand}
-              >
-                Stand
-              </button>
-              <button 
-                className="btn btn-info" 
-                onClick={onDouble}
-                disabled={!canDouble}
-              >
-                Double
-              </button>
-              <button 
-                className="btn btn-secondary" 
-                onClick={onSplit}
-                disabled={!canSplit}
-              >
-                Split
-              </button>
-            </div>
-          )}
+          <div className="player-actions">
+            <button 
+              className="btn btn-success" 
+              onClick={onHit}
+              disabled={gameState !== 'playing' || !canHit}
+            >
+              Hit
+            </button>
+            <button 
+              className="btn btn-warning" 
+              onClick={onStand}
+              disabled={gameState !== 'playing' || !canStand}
+            >
+              Stand
+            </button>
+            <button 
+              className="btn btn-info" 
+              onClick={onDouble}
+              disabled={gameState !== 'playing' || !canDouble}
+            >
+              Double
+            </button>
+            <button 
+              className="btn btn-secondary" 
+              onClick={onSplit}
+              disabled={gameState !== 'playing' || !canSplit}
+            >
+              Split
+            </button>
+          </div>
         </div>
       </div>
     </div>
