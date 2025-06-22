@@ -22,7 +22,7 @@ const GameControls = ({
             onClick={onDeal}
             disabled={gameState === 'playing'}
           >
-            Deal New Hand
+            Deal
           </button>
           
           <div className="player-actions">
