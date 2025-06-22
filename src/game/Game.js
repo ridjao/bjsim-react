@@ -60,7 +60,7 @@ export class Game {
           bet = 3.0;
         }
       } else {
-        bet = bet + (count / decks) * bet;
+        bet = Math.max(0.1, bet + (count / decks) * bet);
       }
     }
 
