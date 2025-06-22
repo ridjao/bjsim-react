@@ -114,6 +114,10 @@ export class Player {
     return this.hands[handIndex].isDoubled();
   }
 
+  isSurrendered(handIndex) {
+    return this.hands[handIndex].isSurrendered();
+  }
+
   getWins() {
     return this.wins;
   }

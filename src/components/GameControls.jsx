@@ -6,12 +6,14 @@ const GameControls = ({
   onHit, 
   onStand, 
   onDouble, 
-  onSplit, 
+  onSplit,
+  onSurrender, 
   gameState,
   canHit = true,
   canStand = true,
   canDouble = true,
-  canSplit = false
+  canSplit = false,
+  canSurrender = false
 }) => {
   return (
     <div className="game-controls">
@@ -53,6 +55,13 @@ const GameControls = ({
               disabled={gameState !== 'playing' || !canSplit}
             >
               Split
+            </button>
+            <button 
+              className="btn btn-danger" 
+              onClick={onSurrender}
+              disabled={gameState !== 'playing' || !canSurrender}
+            >
+              Surrender
             </button>
           </div>
         </div>

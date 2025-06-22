@@ -71,6 +71,10 @@ export class Hand {
     this.doubled = doubled;
   }
 
+  isSurrendered() {
+    return this.surrendered;
+  }
+
   isBlackjack() {
     return this.cards.length === 2 && this.getTotal() === 21;
   }

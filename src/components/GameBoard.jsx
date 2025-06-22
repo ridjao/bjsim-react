@@ -196,6 +196,33 @@ const GameBoard = () => {
     return currentHand.total !== -1;
   };
 
+  const canSurrender = () => {
+    if (!currentGameData || gameState !== 'playing') return false;
+    if (finishedHands.has(currentPlayerHand)) return false;
+    const currentHand = currentGameData.players[0].hands[currentPlayerHand];
+    return currentHand.cards.length === 2 && currentHand.total !== -1 && currentHand.total !== 21;
+  };
+
+  const playerSurrender = () => {
+    if (!game || gameState !== 'playing') return;
+
+    const gameData = game.playerAction(0, currentPlayerHand, 'r');
+    setCurrentGameData(gameData);
+    
+    // After surrender, hand is automatically finished
+    const newFinishedHands = new Set(finishedHands);
+    newFinishedHands.add(currentPlayerHand);
+    setFinishedHands(newFinishedHands);
+    
+    // Find next playable hand
+    const nextHand = findNextPlayableHandWithSet(gameData, newFinishedHands);
+    if (nextHand !== -1) {
+      setCurrentPlayerHand(nextHand);
+    } else {
+      finishRound();
+    }
+  };
+
   const updateGameStats = (gameData) => {
     if (!gameData || !gameData.players[0]) return;
 
@@ -219,7 +246,11 @@ const GameBoard = () => {
       const playerTotal = hand.total;
       const playerBj = hand.isBlackjack;
 
-      if (playerTotal === -1) {
+      if (hand.isSurrendered) {
+        // Player surrendered - loses half bet
+        losses++;
+        totalEarnings -= bet; // bet is already halved by the backend
+      } else if (playerTotal === -1) {
         // Player busted
         busts++;
         losses++;
@@ -334,6 +365,14 @@ const GameBoard = () => {
     // Get basic strategy action
     let action = basic.getAction(playerTotal, dealerTotal, isPlayerSoft, isPair, playerHand.cards);
     
+    // Check for surrender opportunities (only valid on first two cards)
+    if (playerHand.cards.length === 2 && !isPlayerSoft && !isPair) {
+      if ((playerTotal === 16 && (dealerTotal === 9 || dealerTotal === 10 || dealerTotal === 11)) ||
+          (playerTotal === 15 && dealerTotal === 10)) {
+        action = 'r';
+      }
+    }
+    
     // If strategy suggests double but player has more than 2 cards, suggest hit instead
     if (action === 'd' && playerHand.cards.length > 2) {
       action = 'h';
@@ -344,7 +383,8 @@ const GameBoard = () => {
       'h': 'Hit',
       's': 'Stand', 
       'd': 'Double',
-      'p': 'Split'
+      'p': 'Split',
+      'r': 'Surrender'
     };
 
     return {
@@ -372,6 +412,10 @@ const GameBoard = () => {
       return `Double on ${playerTotal} vs dealer ${dealerTotal}`;
     }
     
+    if (action === 'r') {
+      return `Surrender ${playerTotal} vs dealer ${dealerTotal}`;
+    }
+    
     return `Hard ${playerTotal} vs dealer ${dealerTotal}`;
   };
 
@@ -383,6 +427,7 @@ const GameBoard = () => {
     const dealerTotal = dealerHand.total;
     const playerTotal = playerHand.total;
 
+    if (playerHand.isSurrendered) return 'You surrendered! Dealer wins.';
     if (playerTotal === -1) return 'You busted! Dealer wins.';
     if (dealerTotal === -1) return 'Dealer busted! You win!';
     if (playerHand.isBlackjack && !dealerHand.isBlackjack) return 'Blackjack! You win!';
@@ -403,7 +448,8 @@ const GameBoard = () => {
 
     // Determine winner
     let winner = 'push';
-    if (playerTotal === -1) winner = 'dealer';
+    if (playerHand.isSurrendered) winner = 'dealer';
+    else if (playerTotal === -1) winner = 'dealer';
     else if (dealerTotal === -1) winner = 'player';
     else if (playerHand.isBlackjack && !dealerHand.isBlackjack) winner = 'player';
     else if (dealerHand.isBlackjack && !playerHand.isBlackjack) winner = 'dealer';
@@ -485,11 +531,13 @@ const GameBoard = () => {
             onStand={playerStand}
             onDouble={playerDouble}
             onSplit={playerSplit}
+            onSurrender={playerSurrender}
             gameState={gameState}
             canHit={canHit()}
             canStand={canStand()}
             canDouble={canDouble()}
             canSplit={canSplit()}
+            canSurrender={canSurrender()}
           />
 
           {showHints && gameState === 'playing' && getBasicStrategyHint() && (

@@ -83,7 +83,8 @@ export class Game {
           cards: h.getCards().map(c => c.toString()),
           total: h.getTotal(),
           bet: h.getBet(),
-          isBlackjack: h.isBlackjack()
+          isBlackjack: h.isBlackjack(),
+          isSurrendered: h.isSurrendered()
         }))
       })),
       dealer: {
@@ -178,14 +179,16 @@ export class Game {
       dealerCard2 = this.params.dealerCard2;
     }
 
-    // Check if any player hands are not busted
-    let allBusts = true;
+    // Check if any player hands are not busted, surrendered, or blackjack
+    let allFinished = true;
     let allBjs = true;
     
     for (const player of this.players) {
       for (let i = 0; i < player.getNumberOfHands(); i++) {
-        if (player.total(i) !== -1) {
-          allBusts = false;
+        // Hand is finished if busted, surrendered, or blackjack
+        const isFinished = player.total(i) === -1 || player.isSurrendered(i) || player.total(i) === 21;
+        if (!isFinished) {
+          allFinished = false;
         }
         if (player.total(i) !== 21 || !player.isBlackjack(i)) {
           allBjs = false;
@@ -193,9 +196,9 @@ export class Game {
       }
     }
 
-    // Dealer plays only if needed
+    // Dealer plays only if there are unfinished hands (not busted, surrendered, or blackjack)
     const dealerTotal = this.dealer.total(0);
-    if ((!allBusts && !allBjs) || (allBjs && (dealerTotal === 10 || dealerTotal === 11))) {
+    if ((!allFinished && !allBjs) || (allBjs && (dealerTotal === 10 || dealerTotal === 11))) {
       while (this.dealer.total(0) < 17 && this.dealer.total(0) !== -1) {
         this.dealer.receive(0, this.shoe.deal(dealerCard2));
       }
@@ -349,7 +352,8 @@ export class Game {
           cards: h.getCards().map(c => c.toString()),
           total: h.getTotal(),
           bet: h.getBet(),
-          isBlackjack: h.isBlackjack()
+          isBlackjack: h.isBlackjack(),
+          isSurrendered: h.isSurrendered()
         }))
       })),
       dealer: {
@@ -402,7 +406,8 @@ export class Game {
           cards: h.getCards().map(c => c.toString()),
           total: h.getTotal(),
           bet: h.getBet(),
-          isBlackjack: h.isBlackjack()
+          isBlackjack: h.isBlackjack(),
+          isSurrendered: h.isSurrendered()
         }))
       })),
       dealer: {
@@ -431,7 +436,8 @@ export class Game {
           cards: h.getCards().map(c => c.toString()),
           total: h.getTotal(),
           bet: h.getBet(),
-          isBlackjack: h.isBlackjack()
+          isBlackjack: h.isBlackjack(),
+          isSurrendered: h.isSurrendered()
         }))
       })),
       dealer: {
@@ -458,7 +464,12 @@ export class Game {
         const playerBj = player.isBlackjack(i) && player.getNumberOfHands() === 1;
         const playerTotal = player.total(i);
 
-        if (playerTotal === -1 || (dealerBj && !playerBj) || (dealerTotal !== -1 && dealerTotal > playerTotal)) {
+        if (player.isSurrendered(i)) {
+          // Surrendered hands lose half the bet
+          const bet = player.getBet(i);
+          player.setBet(i, bet * 0.5);
+          player.loss(i);
+        } else if (playerTotal === -1 || (dealerBj && !playerBj) || (dealerTotal !== -1 && dealerTotal > playerTotal)) {
           // Player loses
           if (dealerBj && player.isDoubled(i)) {
             player.setBet(i, 0.5 * player.getBet(i));
