@@ -332,7 +332,12 @@ const GameBoard = () => {
                    playerHand.cards[0].charAt(0) === playerHand.cards[1].charAt(0);
 
     // Get basic strategy action
-    const action = basic.getAction(playerTotal, dealerTotal, isPlayerSoft, isPair, playerHand.cards);
+    let action = basic.getAction(playerTotal, dealerTotal, isPlayerSoft, isPair, playerHand.cards);
+    
+    // If strategy suggests double but player has more than 2 cards, suggest hit instead
+    if (action === 'd' && playerHand.cards.length > 2) {
+      action = 'h';
+    }
     
     // Convert action to readable text
     const actionMap = {
