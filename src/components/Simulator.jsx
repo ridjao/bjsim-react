@@ -13,7 +13,9 @@ const Simulator = () => {
     players: 1,
     games: 100000,
     decks: 6,
-    strategy: 'basic'
+    strategy: 'basic',
+    continuousShuffle: false,
+    countBasedBetting: true
   });
   const [customGames, setCustomGames] = useState('');
   const [startTime, setStartTime] = useState(null);
@@ -100,6 +102,8 @@ const Simulator = () => {
       const params = new Parameters();
       params.times = currentChunkSize;
       params.decks = simulationParams.decks;
+      params.continuousShuffle = simulationParams.continuousShuffle;
+      params.countBasedBetting = simulationParams.countBasedBetting;
       
       const game = new Game(chunkPlayers, params);
       
@@ -315,6 +319,30 @@ const Simulator = () => {
             <option value="basic">Basic Strategy</option>
             <option value="conservative">Conservative Strategy</option>
           </select>
+        </div>
+
+        <div className="param-group">
+          <label>
+            <input
+              type="checkbox"
+              checked={simulationParams.continuousShuffle}
+              onChange={(e) => handleParamChange('continuousShuffle', e.target.checked)}
+              disabled={isRunning}
+            />
+            Continuous Shuffle (CSM)
+          </label>
+        </div>
+
+        <div className="param-group">
+          <label>
+            <input
+              type="checkbox"
+              checked={simulationParams.countBasedBetting}
+              onChange={(e) => handleParamChange('countBasedBetting', e.target.checked)}
+              disabled={isRunning}
+            />
+            Count-Based Betting
+          </label>
         </div>
 
         <button

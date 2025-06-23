@@ -11,6 +11,8 @@ export class Parameters {
     this.dealerCard2 = new Card("0X");
     this.times = 1000000;
     this.decks = 6;
+    this.continuousShuffle = false;
+    this.countBasedBetting = true;
   }
 }
 
@@ -40,28 +42,21 @@ export class Game {
     let playerCard2 = new Card("0X");
     let dealerCard1 = new Card("0X");
     let decks = 6;
+    let countBasedBetting = true;
 
     if (this.params) {
       playerCard1 = this.params.playerCard1;
       playerCard2 = this.params.playerCard2;
       dealerCard1 = this.params.dealerCard1;
       decks = this.params.decks;
+      countBasedBetting = this.params.countBasedBetting;
     }
 
-    this.shoe.load(decks);
-    this.shoe.shuffle();
+    // Shoe management is now handled at game loop level
 
     let bet = 1.0;
-    if (count !== 0) {
-      if (decks === 6) {
-        if (count >= 5 && count < 10) {
-          bet = 2.0;
-        } else if (count >= 10) {
-          bet = 3.0;
-        }
-      } else {
-        bet = Math.max(0.1, bet + (count / decks) * bet);
-      }
+    if (countBasedBetting && count !== 0) {
+      bet = Math.max(0.1, bet + (count / decks) * bet);
     }
 
     // Deal first cards
@@ -242,11 +237,27 @@ export class Game {
     const startTime = Date.now();
     
     for (let i = 0; i < times; i++) {
-      const count = this.shoe.count();
-      this.deal(count);
+      // Handle shoe management at game loop level
+      const decks = this.params ? this.params.decks : 6;
+      const continuousShuffle = this.params ? this.params.continuousShuffle : false;
       
-      // Capture hand data before playing
-      const handData = this.captureHandData(i + 1);
+      // Reload shoe if empty
+      const wasEmpty = this.shoe.remainingCards() === 0;
+      if (wasEmpty) {
+        this.shoe.load(decks);
+      }
+      
+      // Shuffle: either because shoe was empty, or continuous shuffling
+      if (wasEmpty || continuousShuffle) {
+        this.shoe.shuffle();
+      }
+      
+      const count = this.shoe.count();
+      
+      // Capture hand data before dealing starts
+      const handData = this.captureHandData(i + 1, count);
+      
+      this.deal(count);
       
       this.play();
       
@@ -321,19 +332,18 @@ export class Game {
   dealSingle() {
     // Initialize shoe only if it's empty or first time
     if (this.shoe.remainingCards() === 0) {
-      this.shoe.load(6);
+      const decks = this.params ? this.params.decks : 6;
+      this.shoe.load(decks);
       this.shoe.shuffle();
     }
 
     let bet = 1.0;
     const count = this.shoe.count();
+    const countBasedBetting = this.params ? this.params.countBasedBetting : true;
+    const decks = this.params ? this.params.decks : 6;
     
-    if (count !== 0) {
-      if (count >= 5 && count < 10) {
-        bet = 2.0;
-      } else if (count >= 10) {
-        bet = 3.0;
-      }
+    if (countBasedBetting && count !== 0) {
+      bet = Math.max(0.1, bet + (count / decks) * bet);
     }
 
     // Deal first cards
@@ -496,10 +506,10 @@ export class Game {
     this.dealer.discardHands();
   }
 
-  captureHandData(handNumber) {
+  captureHandData(handNumber, countBeforeDealing = null) {
     return {
       handNumber,
-      cardCount: this.shoe.count(), // Capture card count before player acts
+      cardCount: countBeforeDealing !== null ? countBeforeDealing : this.shoe.count(), // Capture count before dealing starts
       players: this.players.map(player => ({
         name: player.getName(),
         hands: player.getHands().map(hand => ({

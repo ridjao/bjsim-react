@@ -7,9 +7,11 @@ export class Shoe {
     this.devMode = false;
     this.preSelectedCards = [];
     this.devCardIndex = 0;
+    this.numDecks = 6; // Default deck count
   }
 
   load(numDecks = 6) {
+    this.numDecks = numDecks; // Remember the deck count
     this.cards = [];
     for (let i = 0; i < numDecks; i++) {
       this.cards.push(...Deck.getCards());
@@ -44,7 +46,7 @@ export class Shoe {
 
     // Normal dealing logic
     if (this.cards.length === 0) {
-      this.load(6);
+      this.load(this.numDecks);
       this.shuffle();
     }
 
