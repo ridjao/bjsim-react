@@ -61,7 +61,7 @@ const GameControls = ({
               onClick={onSurrender}
               disabled={gameState !== 'playing' || !canSurrender}
             >
-              Surrender
+              Surr
             </button>
           </div>
         </div>

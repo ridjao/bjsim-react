@@ -500,8 +500,14 @@ const GameBoard = () => {
     return { winner };
   };
 
+  const handleBoardClick = () => {
+    if (gameState === 'finished') {
+      dealNewHand();
+    }
+  };
+
   return (
-    <div className="game-board">
+    <div className="game-board" onClick={handleBoardClick} style={gameState === 'finished' ? {cursor: 'pointer'} : {}}>
       <div className="game-header">
       </div>
 
