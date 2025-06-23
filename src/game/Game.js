@@ -56,7 +56,8 @@ export class Game {
 
     let bet = 1.0;
     if (countBasedBetting && count !== 0) {
-      bet = Math.max(0.1, bet + (count / decks) * bet);
+      bet = Math.max(1.0, bet + (count / decks) * bet);
+      bet = Math.round(bet); // Round to whole numbers only
     }
 
     // Deal first cards
@@ -343,7 +344,8 @@ export class Game {
     const decks = this.params ? this.params.decks : 6;
     
     if (countBasedBetting && count !== 0) {
-      bet = Math.max(0.1, bet + (count / decks) * bet);
+      bet = Math.max(1.0, bet + (count / decks) * bet);
+      bet = Math.round(bet); // Round to whole numbers only
     }
 
     // Deal first cards
