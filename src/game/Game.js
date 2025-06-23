@@ -184,8 +184,8 @@ export class Game {
     
     for (const player of this.players) {
       for (let i = 0; i < player.getNumberOfHands(); i++) {
-        // Hand is finished if busted, surrendered, or blackjack
-        const isFinished = player.total(i) === -1 || player.isSurrendered(i) || player.total(i) === 21;
+        // Hand is finished if busted, surrendered, or blackjack (21 with 2 cards)
+        const isFinished = player.total(i) === -1 || player.isSurrendered(i) || player.isBlackjack(i);
         if (!isFinished) {
           allFinished = false;
         }

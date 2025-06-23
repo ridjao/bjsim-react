@@ -79,9 +79,9 @@ const GameBoard = () => {
     const gameData = game.playerAction(0, currentPlayerHand, 'h');
     setCurrentGameData(gameData);
 
-    // Check if current hand is finished (busted or 21)
+    // Check if current hand is finished (busted only, not 21)
     const playerTotal = gameData.players[0].hands[currentPlayerHand].total;
-    if (playerTotal === -1 || playerTotal === 21) {
+    if (playerTotal === -1) {
       // Mark current hand as finished
       const newFinishedHands = new Set(finishedHands);
       newFinishedHands.add(currentPlayerHand);
@@ -120,8 +120,8 @@ const GameBoard = () => {
     const totalHands = gameData.players[0].hands.length;
     for (let i = 0; i < totalHands; i++) {
       const hand = gameData.players[0].hands[i];
-      // Hand is playable if it's not finished and not busted and not 21
-      if (!finishedHandsSet.has(i) && hand.total !== -1 && hand.total !== 21) {
+      // Hand is playable if it's not finished and not busted (21 is still playable)
+      if (!finishedHandsSet.has(i) && hand.total !== -1) {
         return i;
       }
     }
@@ -175,14 +175,14 @@ const GameBoard = () => {
     if (!currentGameData || gameState !== 'playing') return false;
     if (finishedHands.has(currentPlayerHand)) return false;
     const currentHand = currentGameData.players[0].hands[currentPlayerHand];
-    return currentHand.total !== -1 && currentHand.total !== 21;
+    return currentHand.total !== -1 && currentHand.total < 21;
   };
 
   const canDouble = () => {
     if (!currentGameData || gameState !== 'playing') return false;
     if (finishedHands.has(currentPlayerHand)) return false;
     const currentHand = currentGameData.players[0].hands[currentPlayerHand];
-    return currentHand.cards.length === 2 && currentHand.total !== -1 && currentHand.total !== 21;
+    return currentHand.cards.length === 2 && currentHand.total !== -1 && currentHand.total < 21;
   };
 
   const canSplit = () => {
@@ -191,7 +191,7 @@ const GameBoard = () => {
     const currentHand = currentGameData.players[0].hands[currentPlayerHand];
     return currentHand.cards.length === 2 && 
            currentHand.cards[0].charAt(0) === currentHand.cards[1].charAt(0) &&
-           currentHand.total !== -1 && currentHand.total !== 21;
+           currentHand.total !== -1 && currentHand.total < 21;
   };
 
   const canStand = () => {
@@ -205,7 +205,7 @@ const GameBoard = () => {
     if (!currentGameData || gameState !== 'playing') return false;
     if (finishedHands.has(currentPlayerHand)) return false;
     const currentHand = currentGameData.players[0].hands[currentPlayerHand];
-    return currentHand.cards.length === 2 && currentHand.total !== -1 && currentHand.total !== 21;
+    return currentHand.cards.length === 2 && currentHand.total !== -1 && currentHand.total < 21;
   };
 
   const playerSurrender = () => {
