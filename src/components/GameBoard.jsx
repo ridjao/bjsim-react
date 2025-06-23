@@ -29,6 +29,7 @@ const GameBoard = () => {
     cards: []
   });
   const [showHints, setShowHints] = useState(true);
+  const [initialCount, setInitialCount] = useState(0);
 
   const initializeGame = () => {
     const players = [new Player("You", interactive)];
@@ -59,6 +60,10 @@ const GameBoard = () => {
         currentGame.shoe.resetDevCardIndex();
       }
     }
+
+    // Capture count before dealing starts
+    const countBeforeDealing = currentGame.shoe ? currentGame.shoe.count() : 0;
+    setInitialCount(countBeforeDealing);
 
     const gameData = currentGame.dealSingle();
     setCurrentGameData(gameData);
@@ -393,6 +398,41 @@ const GameBoard = () => {
     };
   };
 
+  const performHintAction = () => {
+    const hint = getBasicStrategyHint();
+    if (!hint) return;
+
+    switch (hint.action) {
+      case 'Hit':
+        playerHit();
+        break;
+      case 'Stand':
+        playerStand();
+        break;
+      case 'Double':
+        if (canDouble()) {
+          playerDouble();
+        } else {
+          playerHit(); // Fallback to hit if can't double
+        }
+        break;
+      case 'Split':
+        if (canSplit()) {
+          playerSplit();
+        }
+        break;
+      case 'Surrender':
+        if (canSurrender()) {
+          playerSurrender();
+        } else {
+          playerHit(); // Fallback to hit if can't surrender
+        }
+        break;
+      default:
+        playerHit();
+    }
+  };
+
   const getActionReason = (action, playerTotal, dealerTotal, isPlayerSoft, isPair) => {
     if (isPair) {
       const pairRank = playerTotal / 2;
@@ -470,6 +510,9 @@ const GameBoard = () => {
           {currentGameData && (
             <div className="game-area">
               <div className="dealer-area">
+                <div className="count-indicator">
+                  Count: {initialCount > 0 ? '+' : ''}{initialCount}
+                </div>
                 <PlayerComponent
                   player={currentGameData.dealer}
                   isDealer={true}
@@ -553,8 +596,17 @@ const GameBoard = () => {
                 </button>
               </div>
               <div className="hint-content">
-                <span className="hint-action">{getBasicStrategyHint().action}</span>
-                <span className="hint-reason">({getBasicStrategyHint().reason})</span>
+                <div className="hint-text">
+                  <span className="hint-action">{getBasicStrategyHint().action}</span>
+                  <span className="hint-reason">({getBasicStrategyHint().reason})</span>
+                </div>
+                <button 
+                  className="hint-accept-btn"
+                  onClick={performHintAction}
+                  title={`Perform ${getBasicStrategyHint().action}`}
+                >
+                  ✓ Accept
+                </button>
               </div>
             </div>
           )}

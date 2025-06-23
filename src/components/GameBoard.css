@@ -9,6 +9,22 @@
 .game-header {
   margin-bottom: 10px;
   min-height: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.count-indicator {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #6c757d;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 10;
 }
 
 .game-result-banner {
@@ -212,8 +228,17 @@
 .hint-content {
   display: flex;
   flex-direction: row;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hint-text {
+  display: flex;
+  flex-direction: row;
   gap: 8px;
   align-items: baseline;
+  flex: 1;
 }
 
 .hint-action {
@@ -226,6 +251,23 @@
   font-size: 13px;
   color: #555;
   font-style: italic;
+}
+
+.hint-accept-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.hint-accept-btn:hover {
+  background: #218838;
 }
 
 .hint-toggle-container {
