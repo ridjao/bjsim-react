@@ -14,75 +14,86 @@ const CommonParameters = ({
   return (
     <div className="common-parameters">
       <div className="param-rows">
-        {/* First row - Simulator-only parameters */}
-        {!isInteractiveMode && (
-          <div className="param-row">
-            <div className="param-group">
-              <label>Number of Players:</label>
-              <input
-                type="number"
-                min="1"
-                max="6"
-                value={parameters.players}
-                onChange={(e) => onParameterChange('players', parseInt(e.target.value))}
-                disabled={disabled}
-              />
-            </div>
-
-            <div className="param-group">
-              <label>Number of Games:</label>
-              <select
-                value={parameters.games === 'custom' ? 'custom' : parameters.games}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === 'custom') {
-                    onParameterChange('games', 'custom');
-                  } else {
-                    onParameterChange('games', parseInt(value));
-                    onCustomGamesChange('');
-                  }
-                }}
-                disabled={disabled}
-              >
-                <option value={10}>10</option>
-                <option value={100}>100</option>
-                <option value={1000}>1,000</option>
-                <option value={10000}>10,000</option>
-                <option value={100000}>100,000</option>
-                <option value={1000000}>1,000,000</option>
-                <option value={10000000}>10,000,000</option>
-                <option value="custom">Custom...</option>
-              </select>
-              {parameters.games === 'custom' && (
+        {/* First row - main controls */}
+        <div className="param-row">
+          {/* Simulator-only parameters */}
+          {!isInteractiveMode && (
+            <>
+              <div className="param-group">
+                <label>Number of Players:</label>
                 <input
                   type="number"
                   min="1"
-                  max="100000000"
-                  placeholder="Enter number of games"
-                  value={customGames}
-                  onChange={(e) => onCustomGamesChange(e.target.value)}
+                  max="8"
+                  value={parameters.players}
+                  onChange={(e) => onParameterChange('players', parseInt(e.target.value))}
+                  onBlur={(e) => {
+                    const value = parseInt(e.target.value);
+                    if (isNaN(value) || value < 1 || value > 8) {
+                      onParameterChange('players', 1);
+                    }
+                  }}
                   disabled={disabled}
-                  className="custom-games-input"
                 />
+              </div>
+
+              <div className="param-group">
+                <label>Number of Games:</label>
+                <select
+                  value={parameters.games === 'custom' ? 'custom' : parameters.games}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === 'custom') {
+                      onParameterChange('games', 'custom');
+                    } else {
+                      onParameterChange('games', parseInt(value));
+                      onCustomGamesChange('');
+                    }
+                  }}
+                  disabled={disabled}
+                >
+                  <option value={10}>10</option>
+                  <option value={100}>100</option>
+                  <option value={1000}>1,000</option>
+                  <option value={10000}>10,000</option>
+                  <option value={100000}>100,000</option>
+                  <option value={1000000}>1,000,000</option>
+                  <option value={10000000}>10,000,000</option>
+                  <option value="custom">Custom...</option>
+                </select>
+              </div>
+
+              {parameters.games === 'custom' && (
+                <div className="param-group">
+                  <label>Custom Games:</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100000000"
+                    placeholder="Enter number"
+                    value={customGames}
+                    onChange={(e) => onCustomGamesChange(e.target.value)}
+                    disabled={disabled}
+                  />
+                </div>
               )}
-            </div>
 
-            <div className="param-group">
-              <label>Strategy:</label>
-              <select
-                value={parameters.strategy}
-                onChange={(e) => onParameterChange('strategy', e.target.value)}
-                disabled={disabled}
-              >
-                <option value="basic">Basic Strategy</option>
-                <option value="conservative">Conservative Strategy</option>
-              </select>
-            </div>
-          </div>
-        )}
+              <div className="param-group">
+                <label>Strategy:</label>
+                <select
+                  value={parameters.strategy}
+                  onChange={(e) => onParameterChange('strategy', e.target.value)}
+                  disabled={disabled}
+                  className="strategy-select"
+                >
+                  <option value="basic">Basic</option>
+                  <option value="conservative">Conservative</option>
+                </select>
+              </div>
+            </>
+          )}
 
-        {/* Second row - Common parameters */}
-        <div className="param-row">
+          {/* Common parameters */}
           <div className="param-group">
             <label>Number of Decks:</label>
             <select
@@ -97,7 +108,10 @@ const CommonParameters = ({
               <option value={8}>8</option>
             </select>
           </div>
+        </div>
 
+        {/* Second row - checkboxes */}
+        <div className="param-row checkbox-row">
           <div className="param-group">
             <label>
               <input

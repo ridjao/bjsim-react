@@ -2,28 +2,36 @@
   background: #f8f9fa;
   border: 1px solid #e9ecef;
   border-radius: 8px;
-  padding: 20px;
-  margin: 10px 0;
+  padding: 15px;
+  margin: 10px auto;
+  display: block;
+  min-width: fit-content;
+  width: fit-content;
 }
 
 .param-rows {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
 }
 
 .param-row {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   align-items: flex-end;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.checkbox-row {
+  justify-content: flex-start;
 }
 
 .param-group {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  min-width: 150px;
+  flex-shrink: 0;
 }
 
 .param-group label {
@@ -39,19 +47,21 @@
   border-radius: 4px;
   background: white;
   font-size: 14px;
-  min-width: 120px;
+  width: 120px;
+  box-sizing: border-box;
 }
+
+.strategy-select {
+  width: 120px !important;
+  box-sizing: border-box;
+}
+
 
 .param-group select:focus,
 .param-group input[type="number"]:focus {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-.custom-games-input {
-  margin-top: 8px;
-  min-width: 200px;
 }
 
 .param-group label input[type="checkbox"] {
@@ -63,18 +73,33 @@
   align-items: center;
 }
 
+.checkbox-row .param-group label {
+  font-weight: 500;
+  color: #495057;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
 .param-group select:disabled,
 .param-group input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.param-group input[type="number"] {
-  width: 80px;
-  min-width: 80px;
-}
 
 /* Mobile responsiveness */
+@media (max-width: 1024px) {
+  .param-row {
+    flex-wrap: wrap;
+  }
+  
+  .games-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
+
 @media (max-width: 768px) {
   .param-row {
     flex-direction: column;
@@ -82,7 +107,24 @@
   }
   
   .param-group {
-    min-width: auto;
     width: 100%;
+  }
+  
+  .param-group select,
+  .param-group input[type="number"] {
+    width: 100%;
+  }
+  
+  .strategy-select {
+    width: 100% !important;
+  }
+  
+  .custom-games-input {
+    width: 100% !important;
+  }
+  
+  .games-controls {
+    flex-direction: column;
+    gap: 5px;
   }
 }

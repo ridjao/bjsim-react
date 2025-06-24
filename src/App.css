@@ -23,10 +23,18 @@
   text-align: center;
 }
 
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .nav-tabs {
   display: flex;
   justify-content: center;
   gap: 0;
+  flex: 1;
 }
 
 .nav-tab {
@@ -61,33 +69,41 @@
 }
 
 .parameters-toggle {
-  position: absolute;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-  padding: 8px 16px;
+  padding: 8px;
   background: rgba(255,255,255,0.1);
   border: none;
   color: white;
-  font-size: 13px;
-  font-weight: bold;
   cursor: pointer;
   transition: all 0.3s;
-  border-radius: 20px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
 }
 
 .parameters-toggle:hover {
   background: rgba(255,255,255,0.2);
-  transform: translateY(-50%) translateY(-1px);
 }
 
 .parameters-toggle.active {
   background: rgba(255,255,255,0.25);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-  transform: translateY(-50%);
+}
+
+.hamburger-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hamburger-icon span {
+  width: 16px;
+  height: 2px;
+  background: white;
+  border-radius: 1px;
+  transition: all 0.3s;
 }
 
 .parameters-accordion {

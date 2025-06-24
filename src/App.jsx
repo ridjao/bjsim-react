@@ -29,27 +29,33 @@ function App() {
       <header className="App-header">
         <div className="header-main">
           <h1>Blackjack Simulator</h1>
-          <nav className="nav-tabs">
+          <div className="nav-container">
+            <nav className="nav-tabs">
+              <button 
+                className={`nav-tab ${currentView === 'simulator' ? 'active' : ''}`}
+                onClick={() => setCurrentView('simulator')}
+              >
+                Simulator
+              </button>
+              <button 
+                className={`nav-tab ${currentView === 'interactive' ? 'active' : ''}`}
+                onClick={() => setCurrentView('interactive')}
+              >
+                Interactive
+              </button>
+            </nav>
             <button 
-              className={`nav-tab ${currentView === 'simulator' ? 'active' : ''}`}
-              onClick={() => setCurrentView('simulator')}
+              className={`parameters-toggle ${showParameters ? 'active' : ''}`}
+              onClick={() => setShowParameters(!showParameters)}
+              title="Toggle settings"
             >
-              Simulator
+              <div className="hamburger-icon">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
             </button>
-            <button 
-              className={`nav-tab ${currentView === 'interactive' ? 'active' : ''}`}
-              onClick={() => setCurrentView('interactive')}
-            >
-              Interactive
-            </button>
-          </nav>
-          <button 
-            className={`parameters-toggle ${showParameters ? 'active' : ''}`}
-            onClick={() => setShowParameters(!showParameters)}
-            title="Toggle common parameters"
-          >
-            ⚙️ Settings
-          </button>
+          </div>
         </div>
         
         {showParameters && (
