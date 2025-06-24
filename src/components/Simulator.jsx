@@ -272,9 +272,8 @@ const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames, o
             <div className="simulator-welcome">
               <div className="welcome-message">
                 <p><em>Welcome to Blackjack Simulator!</em></p>
-                <p><em>Click the play button in the header to start.</em></p>
-                <p><em>Simulation parameters can be modified in the settings page.</em></p>
-                <p><em>Played hands will only be tracked and displayed for simulations with 1,000 games or less.</em></p>
+                <p><em>Click the play button to start. Simulation parameters can be modified in the settings page. 
+                  Played hands will only be tracked and displayed for simulations with 1,000 games or less.</em></p>
               </div>
             </div>
           )}

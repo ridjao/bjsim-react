@@ -513,8 +513,7 @@ const GameBoard = forwardRef(({ commonParameters, devModeState, onGameChange, sh
             <div className="interactive-welcome">
               <div className="welcome-message">
                 <p><em>Welcome to Blackjack Simulator!</em></p>
-                <p><em>Click anywhere on the screen to start playing.</em></p>
-                <p><em>After each game ends, you can deal the next hand by clicking anywhere on the screen.</em></p>
+                <p><em>Click anywhere on the screen to start playing. After each game ends, you can deal the next hand by clicking anywhere on the screen.</em></p>
               </div>
             </div>
           )}

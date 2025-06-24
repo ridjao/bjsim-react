@@ -13,7 +13,6 @@
 
 .dev-mode-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
   padding-bottom: 8px;
@@ -26,12 +25,6 @@
   border-bottom: none;
 }
 
-.dev-mode-header h3 {
-  margin: 0;
-  color: #495057;
-  font-size: 0.9em;
-}
-
 .dev-toggle {
   display: flex;
   align-items: center;
@@ -39,12 +32,10 @@
   font-weight: bold;
   color: #495057;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .dev-toggle input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
   cursor: pointer;
 }
 
@@ -64,7 +55,8 @@
 .card-builder h4 {
   margin: 0 0 8px 0;
   color: #333;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: normal;
 }
 
 .card-selector {
@@ -111,7 +103,8 @@
 .preset-scenarios h4 {
   margin: 0 0 8px 0;
   color: #333;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: normal;
 }
 
 .preset-buttons {
@@ -148,7 +141,8 @@
 .selected-cards-header h4 {
   margin: 0;
   color: #333;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: normal;
 }
 
 .clear-btn {

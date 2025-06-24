@@ -154,13 +154,13 @@ const DevMode = ({ game, onCardsChanged, onDevModeToggle }) => {
   return (
     <div className={`dev-mode ${isDevMode ? '' : 'collapsed'}`}>
       <div className="dev-mode-header">
-        <h3>Developer Mode</h3>
         <label className="dev-toggle">
           <input
             type="checkbox"
             checked={isDevMode}
             onChange={toggleDevMode}
           />
+          Developer Mode
         </label>
       </div>
 
