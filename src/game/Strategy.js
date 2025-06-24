@@ -12,11 +12,11 @@ export class BasicStrategy extends Strategy {
   getAction(playerTotal, dealerTotal, soft, pair, cards) {
     // Basic strategy implementation
     if (pair) {
-      return this.getPairAction(playerTotal, dealerTotal);
+      return this.getPairAction(playerTotal, dealerTotal, soft);
     }
     
     if (soft) {
-      return this.getSoftAction(playerTotal, dealerTotal);
+      return this.getSoftAction(playerTotal, dealerTotal, cards);
     }
     
     // Check for surrender opportunities (only valid with exactly 2 cards)
@@ -27,13 +27,15 @@ export class BasicStrategy extends Strategy {
       }
     }
     
-    return this.getHardAction(playerTotal, dealerTotal);
+    return this.getHardAction(playerTotal, dealerTotal, cards);
   }
 
-  getPairAction(playerTotal, dealerTotal) {
+  getPairAction(playerTotal, dealerTotal, soft = false) {
+    // Handle Aces first - they show as soft 12, not hard 22
+    if (soft && playerTotal === 12) return 'p'; // Always split Aces
+    
     const pairRank = playerTotal / 2;
     
-    if (pairRank === 11) return 'p'; // Always split Aces
     if (pairRank === 8) return 'p'; // Always split 8s
     if (pairRank === 10) return 's'; // Never split 10s
     if (pairRank === 5) {
@@ -61,26 +63,37 @@ export class BasicStrategy extends Strategy {
     return 'h';
   }
 
-  getSoftAction(playerTotal, dealerTotal) {
+  getSoftAction(playerTotal, dealerTotal, cards) {
     if (playerTotal >= 19) return 's';
     if (playerTotal === 18) {
-      if (dealerTotal <= 6) return 'd';
+      if (dealerTotal <= 6) {
+        return (cards && cards.length > 2) ? 'h' : 'd';
+      }
       if (dealerTotal <= 8) return 's';
       return 'h';
     }
     if (playerTotal === 17) {
-      return dealerTotal <= 6 ? 'd' : 'h';
+      if (dealerTotal <= 6) {
+        return (cards && cards.length > 2) ? 'h' : 'd';
+      }
+      return 'h';
     }
     if (playerTotal >= 15) {
-      return dealerTotal <= 6 ? 'd' : 'h';
+      if (dealerTotal <= 6) {
+        return (cards && cards.length > 2) ? 'h' : 'd';
+      }
+      return 'h';
     }
     if (playerTotal >= 13) {
-      return dealerTotal <= 6 ? 'd' : 'h';
+      if (dealerTotal <= 6) {
+        return (cards && cards.length > 2) ? 'h' : 'd';
+      }
+      return 'h';
     }
     return 'h';
   }
 
-  getHardAction(playerTotal, dealerTotal) {
+  getHardAction(playerTotal, dealerTotal, cards) {
     if (playerTotal >= 17) return 's';
     if (playerTotal >= 13) {
       return dealerTotal <= 6 ? 's' : 'h';
@@ -89,13 +102,19 @@ export class BasicStrategy extends Strategy {
       return (dealerTotal >= 4 && dealerTotal <= 6) ? 's' : 'h';
     }
     if (playerTotal === 11) {
-      return 'd';
+      return (cards && cards.length > 2) ? 'h' : 'd';
     }
     if (playerTotal === 10) {
-      return dealerTotal <= 9 ? 'd' : 'h';
+      if (dealerTotal <= 9) {
+        return (cards && cards.length > 2) ? 'h' : 'd';
+      }
+      return 'h';
     }
     if (playerTotal === 9) {
-      return (dealerTotal >= 3 && dealerTotal <= 6) ? 'd' : 'h';
+      if (dealerTotal >= 3 && dealerTotal <= 6) {
+        return (cards && cards.length > 2) ? 'h' : 'd';
+      }
+      return 'h';
     }
     return 'h';
   }

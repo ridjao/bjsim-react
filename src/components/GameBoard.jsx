@@ -377,14 +377,6 @@ const GameBoard = ({ commonParameters }) => {
     // Get basic strategy action
     let action = basic.getAction(playerTotal, dealerTotal, isPlayerSoft, isPair, playerHand.cards);
     
-    // Check for surrender opportunities (only valid on first two cards)
-    if (playerHand.cards.length === 2 && !isPlayerSoft && !isPair) {
-      if ((playerTotal === 16 && (dealerTotal === 9 || dealerTotal === 10 || dealerTotal === 11)) ||
-          (playerTotal === 15 && dealerTotal === 10)) {
-        action = 'r';
-      }
-    }
-    
     // If strategy suggests double but player has more than 2 cards, suggest hit instead
     if (action === 'd' && playerHand.cards.length > 2) {
       action = 'h';
@@ -442,8 +434,12 @@ const GameBoard = ({ commonParameters }) => {
 
   const getActionReason = (action, playerTotal, dealerTotal, isPlayerSoft, isPair) => {
     if (isPair) {
+      // For pairs, check if it's Aces (soft hand) first
+      if (isPlayerSoft && playerTotal === 12) {
+        return "Always split Aces";
+      }
+      
       const pairRank = playerTotal / 2;
-      if (pairRank === 11) return "Always split Aces";
       if (pairRank === 8) return "Always split 8s"; 
       if (pairRank === 10) return "Never split 10s";
       if (pairRank === 5) return `Treat 5s as hard 10 vs dealer ${dealerTotal}`;
