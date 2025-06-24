@@ -4,7 +4,7 @@ import { Player } from '../game/Player';
 import { basic, conservative } from '../game/Strategy';
 import './Simulator.css';
 
-const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames, onRunningStateChange }, ref) => {
+const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames, onRunningStateChange, showStatistics }, ref) => {
   const [isRunning, setIsRunning] = useState(false);
   const [results, setResults] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -279,7 +279,7 @@ const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames, o
             </div>
           )}
           
-          {results && (
+          {results && showStatistics && (
         <div className="results">
           <h3>Simulation Results</h3>
           <div className="results-summary">

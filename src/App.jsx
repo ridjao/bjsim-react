@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Simulator from './components/Simulator.jsx';
 import GameBoard from './components/GameBoard.jsx';
 import CommonParameters from './components/CommonParameters.jsx';
@@ -21,9 +21,19 @@ function App() {
     enabled: false,
     cards: []
   });
+  const [showStatistics, setShowStatistics] = useState(true); // Default true for simulator
   const [interactiveGame, setInteractiveGame] = useState(null);
   const simulatorRef = useRef(null);
   const gameBoardRef = useRef(null);
+
+  // Update showStatistics default when view changes
+  useEffect(() => {
+    if (currentView === 'simulator') {
+      setShowStatistics(true); // Default true for simulator
+    } else {
+      setShowStatistics(false); // Default false for interactive
+    }
+  }, [currentView]);
 
   const handleParameterChange = (param, value) => {
     setCommonParameters(prev => ({
@@ -106,6 +116,8 @@ function App() {
               game={interactiveGame}
               onDevCardsChanged={handleDevCardsChanged}
               onDevModeToggle={handleDevModeToggle}
+              showStatistics={showStatistics}
+              onShowStatisticsChange={setShowStatistics}
             />
           </div>
         )}
@@ -119,6 +131,7 @@ function App() {
             customGames={customGames}
             setCustomGames={setCustomGames}
             onRunningStateChange={setIsSimulationRunning}
+            showStatistics={showStatistics}
           />
         ) : (
           <GameBoard 
@@ -126,6 +139,7 @@ function App() {
             commonParameters={commonParameters} 
             devModeState={devModeState}
             onGameChange={setInteractiveGame}
+            showStatistics={showStatistics}
           />
         )}
       </main>

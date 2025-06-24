@@ -11,7 +11,9 @@ const CommonParameters = ({
   onCustomGamesChange = () => {},
   game = null,
   onDevCardsChanged = () => {},
-  onDevModeToggle = () => {}
+  onDevModeToggle = () => {},
+  showStatistics = true,
+  onShowStatisticsChange = () => {}
 }) => {
   const isInteractiveMode = currentView === 'interactive';
 
@@ -137,6 +139,18 @@ const CommonParameters = ({
                 disabled={disabled}
               />
               Count-Based Betting
+            </label>
+          </div>
+
+          <div className="param-group">
+            <label>
+              <input
+                type="checkbox"
+                checked={showStatistics}
+                onChange={(e) => onShowStatisticsChange(e.target.checked)}
+                disabled={disabled}
+              />
+              Show Statistics
             </label>
           </div>
         </div>

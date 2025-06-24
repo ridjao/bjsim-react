@@ -6,7 +6,7 @@ import PlayerComponent from './Player.jsx';
 import GameControls from './GameControls.jsx';
 import './GameBoard.css';
 
-const GameBoard = forwardRef(({ commonParameters, devModeState, onGameChange }, ref) => {
+const GameBoard = forwardRef(({ commonParameters, devModeState, onGameChange, showStatistics }, ref) => {
   const [game, setGame] = useState(null);
   const [gameState, setGameState] = useState('waiting'); // waiting, playing, finished
   const [currentGameData, setCurrentGameData] = useState(null);
@@ -644,7 +644,8 @@ const GameBoard = forwardRef(({ commonParameters, devModeState, onGameChange }, 
             </div>
           )}
           
-          <div className="game-stats">
+          {showStatistics && (
+            <div className="game-stats">
             <div className="stats-header">
               <h3>Statistics</h3>
               <button className="btn btn-secondary reset-btn" onClick={resetStats}>
@@ -714,6 +715,7 @@ const GameBoard = forwardRef(({ commonParameters, devModeState, onGameChange }, 
               </div>
             </div>
           </div>
+          )}
 
         </div>
       </div>
