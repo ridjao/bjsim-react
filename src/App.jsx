@@ -16,6 +16,7 @@ function App() {
     countBasedBetting: true
   });
   const [customGames, setCustomGames] = useState('');
+  const [isSimulationRunning, setIsSimulationRunning] = useState(false);
   const simulatorRef = useRef(null);
 
   const handleParameterChange = (param, value) => {
@@ -59,9 +60,10 @@ function App() {
               </button>
             </nav>
             <button 
-              className={`parameters-toggle ${showParameters ? 'active' : ''}`}
-              onClick={() => setShowParameters(!showParameters)}
-              title="Toggle settings"
+              className={`parameters-toggle ${showParameters ? 'active' : ''} ${isSimulationRunning ? 'disabled' : ''}`}
+              onClick={() => !isSimulationRunning && setShowParameters(!showParameters)}
+              disabled={isSimulationRunning}
+              title={isSimulationRunning ? "Settings disabled during simulation" : "Toggle settings"}
             >
               <div className="hamburger-icon">
                 <span></span>
@@ -80,6 +82,7 @@ function App() {
               currentView={currentView}
               customGames={customGames}
               onCustomGamesChange={setCustomGames}
+              disabled={isSimulationRunning}
             />
           </div>
         )}
@@ -92,6 +95,7 @@ function App() {
             commonParameters={commonParameters} 
             customGames={customGames}
             setCustomGames={setCustomGames}
+            onRunningStateChange={setIsSimulationRunning}
           />
         ) : (
           <GameBoard commonParameters={commonParameters} />

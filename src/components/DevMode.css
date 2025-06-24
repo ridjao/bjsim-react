@@ -1,9 +1,14 @@
 .dev-mode {
   background: #f8f9fa;
   border: 2px dashed #6c757d;
-  border-radius: 12px;
-  padding: 15px;
+  border-radius: 8px;
+  padding: 10px;
   margin: 15px 0 0 0;
+}
+
+.dev-mode.collapsed {
+  padding: 8px 10px;
+  border-radius: 6px;
 }
 
 .dev-mode-header {
@@ -15,10 +20,16 @@
   border-bottom: 1px solid #dee2e6;
 }
 
+.dev-mode.collapsed .dev-mode-header {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
 .dev-mode-header h3 {
   margin: 0;
   color: #495057;
-  font-size: 1.1em;
+  font-size: 0.9em;
 }
 
 .dev-toggle {

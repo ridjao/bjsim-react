@@ -1,16 +1,37 @@
-import React, { useState, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { Game, Parameters } from '../game/Game';
 import { Player } from '../game/Player';
 import { basic, conservative } from '../game/Strategy';
 import './Simulator.css';
 
-const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames }, ref) => {
+const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames, onRunningStateChange }, ref) => {
   const [isRunning, setIsRunning] = useState(false);
   const [results, setResults] = useState(null);
   const [progress, setProgress] = useState(0);
   const [playedHands, setPlayedHands] = useState([]);
   const [startTime, setStartTime] = useState(null);
   const [hasRunSimulation, setHasRunSimulation] = useState(false);
+  const [lastSimulationParams, setLastSimulationParams] = useState(null);
+
+  // Reset progress when simulation parameters change
+  useEffect(() => {
+    if (hasRunSimulation && !isRunning) {
+      const currentParams = {
+        games: commonParameters.games,
+        customGames: customGames,
+        players: commonParameters.players,
+        strategy: commonParameters.strategy,
+        decks: commonParameters.decks,
+        continuousShuffle: commonParameters.continuousShuffle,
+        countBasedBetting: commonParameters.countBasedBetting
+      };
+      
+      // Only reset if parameters have actually changed
+      if (lastSimulationParams && JSON.stringify(currentParams) !== JSON.stringify(lastSimulationParams)) {
+        setProgress(0);
+      }
+    }
+  }, [commonParameters.games, customGames, commonParameters.players, commonParameters.strategy, commonParameters.decks, commonParameters.continuousShuffle, commonParameters.countBasedBetting, hasRunSimulation, isRunning, lastSimulationParams]);
 
   const runSimulation = async () => {
     try {
@@ -43,6 +64,7 @@ const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames },
       
       // Now start the simulation
       setIsRunning(true);
+      onRunningStateChange && onRunningStateChange(true);
       const simulationStartTime = Date.now();
       setStartTime(simulationStartTime);
       
@@ -201,12 +223,26 @@ const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames },
         ...finalResults,
         elapsedTime: elapsedSeconds
       });
+      
+      // Store the parameters used for this completed simulation
+      setLastSimulationParams({
+        games: commonParameters.games,
+        customGames: customGames,
+        players: commonParameters.players,
+        strategy: commonParameters.strategy,
+        decks: commonParameters.decks,
+        continuousShuffle: commonParameters.continuousShuffle,
+        countBasedBetting: commonParameters.countBasedBetting
+      });
+      
       setIsRunning(false);
+      onRunningStateChange && onRunningStateChange(false);
       console.log('🏁 Simulation completed successfully');
       
     } catch (error) {
       console.error('❌ ERROR in runSimulation:', error);
       setIsRunning(false);
+      onRunningStateChange && onRunningStateChange(false);
       alert(`Simulation error: ${error.message}`);
     }
   };

@@ -152,7 +152,7 @@ const DevMode = ({ game, onCardsChanged, onDevModeToggle }) => {
   };
 
   return (
-    <div className="dev-mode">
+    <div className={`dev-mode ${isDevMode ? '' : 'collapsed'}`}>
       <div className="dev-mode-header">
         <h3>Developer Mode</h3>
         <label className="dev-toggle">
