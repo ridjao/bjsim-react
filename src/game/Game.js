@@ -160,11 +160,12 @@ export class Game {
       }
     }
 
-    // Dealer's turn - first deal hole card
-    this.dealer.receive(0, this.shoe.deal(dealerCard2));
-    
-    const dealerTotal = this.dealer.total(0);
-    if ((!allBusts && !allBjs) || (allBjs && (dealerTotal === 10 || dealerTotal === 11))) {
+    // Dealer's turn - only play if there are unfinished hands (European blackjack rules)
+    if ((!allBusts && !allBjs) || (allBjs && (this.dealer.total(0) === 10 || this.dealer.total(0) === 11))) {
+      // Deal hole card (second card)
+      this.dealer.receive(0, this.shoe.deal(dealerCard2));
+      
+      // Continue hitting if needed
       while (this.dealer.total(0) < 17 && this.dealer.total(0) !== -1) {
         this.dealer.receive(0, this.shoe.deal());
       }
