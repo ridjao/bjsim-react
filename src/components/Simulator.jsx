@@ -274,12 +274,12 @@ const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames },
                   <div className="stat">
                     <span className="stat-label">Earnings:</span>
                     <span className={`stat-value ${player.earnings >= 0 ? 'positive' : 'negative'}`}>
-                      ${player.earnings.toFixed(2)}
+                      ${player.earnings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                     </span>
                   </div>
                   <div className="stat">
                     <span className="stat-label">Total Bet:</span>
-                    <span className="stat-value">${player.totalBet.toFixed(2)}</span>
+                    <span className="stat-value">${player.totalBet.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</span>
                   </div>
                   <div className="stat">
                     <span className="stat-label">Return:</span>
