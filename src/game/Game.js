@@ -331,17 +331,24 @@ export class Game {
 
   // Interactive game methods for React UI
   dealSingle() {
-    // Initialize shoe only if it's empty or first time
-    if (this.shoe.remainingCards() === 0) {
-      const decks = this.params ? this.params.decks : 6;
+    // Handle shoe management
+    const decks = this.params ? this.params.decks : 6;
+    const continuousShuffle = this.params ? this.params.continuousShuffle : false;
+    
+    // Reload shoe if empty
+    const wasEmpty = this.shoe.remainingCards() === 0;
+    if (wasEmpty) {
       this.shoe.load(decks);
+    }
+    
+    // Shuffle: either because shoe was empty, or continuous shuffling
+    if (wasEmpty || continuousShuffle) {
       this.shoe.shuffle();
     }
 
     let bet = 1.0;
     const count = this.shoe.count();
     const countBasedBetting = this.params ? this.params.countBasedBetting : true;
-    const decks = this.params ? this.params.decks : 6;
     
     if (countBasedBetting && count !== 0) {
       bet = Math.max(1.0, bet + (count / decks) * bet);
