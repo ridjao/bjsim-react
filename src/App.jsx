@@ -35,7 +35,6 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div className="header-main">
-          <h1>Blackjack Simulator</h1>
           <div className="nav-container">
             <button 
               className={`run-simulation-header ${currentView === 'interactive' ? 'invisible' : ''}`}

@@ -519,6 +519,7 @@ const GameBoard = ({ commonParameters }) => {
           {!currentGameData && gameState === 'waiting' && (
             <div className="interactive-welcome">
               <div className="welcome-message">
+                <p><em>Welcome to Blackjack Simulator!</em></p>
                 <p><em>Click the deal button to start.</em></p>
                 <p><em>In subsequent games, you can deal by clicking anywhere on the screen after a game ends.</em></p>
               </div>
