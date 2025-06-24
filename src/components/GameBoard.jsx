@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Game } from '../game/Game';
+import { Game, Parameters } from '../game/Game';
 import { Player } from '../game/Player';
 import { interactive, basic } from '../game/Strategy';
 import PlayerComponent from './Player.jsx';
@@ -7,7 +7,7 @@ import GameControls from './GameControls.jsx';
 import DevMode from './DevMode.jsx';
 import './GameBoard.css';
 
-const GameBoard = () => {
+const GameBoard = ({ commonParameters }) => {
   const [game, setGame] = useState(null);
   const [gameState, setGameState] = useState('waiting'); // waiting, playing, finished
   const [currentGameData, setCurrentGameData] = useState(null);
@@ -33,7 +33,14 @@ const GameBoard = () => {
 
   const initializeGame = () => {
     const players = [new Player("You", interactive)];
-    const newGame = new Game(players);
+    
+    // Create parameters with common settings
+    const params = new Parameters();
+    params.decks = commonParameters.decks;
+    params.continuousShuffle = commonParameters.continuousShuffle;
+    params.countBasedBetting = commonParameters.countBasedBetting;
+    
+    const newGame = new Game(players, params);
     
     // Apply dev mode settings if they exist
     if (devModeState.enabled && newGame.shoe) {

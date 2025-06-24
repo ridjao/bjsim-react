@@ -10,6 +10,12 @@
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
+.header-main {
+  container: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
 .App-header h1 {
   margin: 0 0 6px 0;
   font-size: 1.2em;
@@ -19,6 +25,7 @@
 .nav-tabs {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 0;
 }
 
@@ -39,7 +46,7 @@
   border-bottom-left-radius: 8px;
 }
 
-.nav-tab:last-child {
+.nav-tab:nth-child(2) {
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
 }
@@ -51,6 +58,50 @@
 .nav-tab.active {
   background: white;
   color: #1e3c72;
+}
+
+.parameters-toggle {
+  margin-left: 15px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.parameters-toggle:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-1px);
+}
+
+.parameters-toggle.active {
+  background: rgba(255,255,255,0.25);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.parameters-accordion {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .App-main {

@@ -4,7 +4,7 @@ import { Player } from '../game/Player';
 import { basic, conservative } from '../game/Strategy';
 import './Simulator.css';
 
-const Simulator = () => {
+const Simulator = ({ commonParameters }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [results, setResults] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -12,10 +12,7 @@ const Simulator = () => {
   const [simulationParams, setSimulationParams] = useState({
     players: 1,
     games: 100000,
-    decks: 6,
-    strategy: 'basic',
-    continuousShuffle: false,
-    countBasedBetting: true
+    strategy: 'basic'
   });
   const [customGames, setCustomGames] = useState('');
   const [startTime, setStartTime] = useState(null);
@@ -101,9 +98,9 @@ const Simulator = () => {
       // Set up game for this chunk
       const params = new Parameters();
       params.times = currentChunkSize;
-      params.decks = simulationParams.decks;
-      params.continuousShuffle = simulationParams.continuousShuffle;
-      params.countBasedBetting = simulationParams.countBasedBetting;
+      params.decks = commonParameters.decks;
+      params.continuousShuffle = commonParameters.continuousShuffle;
+      params.countBasedBetting = commonParameters.countBasedBetting;
       
       const game = new Game(chunkPlayers, params);
       
@@ -294,20 +291,6 @@ const Simulator = () => {
           )}
         </div>
 
-        <div className="param-group">
-          <label>Number of Decks:</label>
-          <select
-            value={simulationParams.decks}
-            onChange={(e) => handleParamChange('decks', parseInt(e.target.value))}
-            disabled={isRunning}
-          >
-            <option value={1}>1</option>
-            <option value={2}>2</option>
-            <option value={4}>4</option>
-            <option value={6}>6</option>
-            <option value={8}>8</option>
-          </select>
-        </div>
 
         <div className="param-group">
           <label>Strategy:</label>
@@ -321,29 +304,6 @@ const Simulator = () => {
           </select>
         </div>
 
-        <div className="param-group">
-          <label>
-            <input
-              type="checkbox"
-              checked={simulationParams.continuousShuffle}
-              onChange={(e) => handleParamChange('continuousShuffle', e.target.checked)}
-              disabled={isRunning}
-            />
-            Continuous Shuffle (CSM)
-          </label>
-        </div>
-
-        <div className="param-group">
-          <label>
-            <input
-              type="checkbox"
-              checked={simulationParams.countBasedBetting}
-              onChange={(e) => handleParamChange('countBasedBetting', e.target.checked)}
-              disabled={isRunning}
-            />
-            Count-Based Betting
-          </label>
-        </div>
 
         <button
           className="btn btn-primary run-button"
