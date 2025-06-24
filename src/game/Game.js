@@ -173,11 +173,6 @@ export class Game {
 
   // Interactive mode dealer play - only plays dealer, assumes players are done
   playDealer() {
-    let dealerCard2 = new Card("0X");
-    if (this.params) {
-      dealerCard2 = this.params.dealerCard2;
-    }
-
     // Check if any player hands are not busted, surrendered, or blackjack
     let allFinished = true;
     let allBjs = true;
@@ -199,7 +194,7 @@ export class Game {
     const dealerTotal = this.dealer.total(0);
     if ((!allFinished && !allBjs) || (allBjs && (dealerTotal === 10 || dealerTotal === 11))) {
       while (this.dealer.total(0) < 17 && this.dealer.total(0) !== -1) {
-        this.dealer.receive(0, this.shoe.deal(dealerCard2));
+        this.dealer.receive(0, this.shoe.deal());
       }
     }
   }
@@ -366,6 +361,9 @@ export class Game {
     for (const player of this.players) {
       player.receive(0, this.shoe.deal());
     }
+    
+    // Deal dealer's hole card (second card) - always dealt regardless of player outcomes
+    this.dealer.receive(0, this.shoe.deal());
 
     this.currentGameState = {
       players: this.players.map(p => ({
