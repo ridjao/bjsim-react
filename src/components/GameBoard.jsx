@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { Game, Parameters } from '../game/Game';
 import { Player } from '../game/Player';
 import { interactive, basic } from '../game/Strategy';
 import PlayerComponent from './Player.jsx';
 import GameControls from './GameControls.jsx';
-import DevMode from './DevMode.jsx';
 import './GameBoard.css';
 
-const GameBoard = ({ commonParameters }) => {
+const GameBoard = forwardRef(({ commonParameters, devModeState, onGameChange }, ref) => {
   const [game, setGame] = useState(null);
   const [gameState, setGameState] = useState('waiting'); // waiting, playing, finished
   const [currentGameData, setCurrentGameData] = useState(null);
@@ -24,12 +23,19 @@ const GameBoard = ({ commonParameters }) => {
     earnings: 0,
     totalBet: 0
   });
-  const [devModeState, setDevModeState] = useState({
-    enabled: false,
-    cards: []
-  });
   const [showHints, setShowHints] = useState(true);
   const [initialCount, setInitialCount] = useState(0);
+
+  // Notify parent when game changes
+  useEffect(() => {
+    if (onGameChange) {
+      onGameChange(game);
+    }
+  }, [game, onGameChange]);
+
+  useImperativeHandle(ref, () => ({
+    getGame: () => game
+  }));
 
   const initializeGame = () => {
     const players = [new Player("You", interactive)];
@@ -322,19 +328,6 @@ const GameBoard = ({ commonParameters }) => {
     });
   };
 
-  const handleDevCardsChanged = (cards) => {
-    setDevModeState(prev => ({
-      ...prev,
-      cards
-    }));
-  };
-
-  const handleDevModeToggle = (enabled) => {
-    setDevModeState(prev => ({
-      ...prev,
-      enabled
-    }));
-  };
 
   const getBasicStrategyHint = () => {
     if (!currentGameData || gameState !== 'playing' || finishedHands.has(currentPlayerHand)) {
@@ -722,15 +715,10 @@ const GameBoard = ({ commonParameters }) => {
             </div>
           </div>
 
-          <DevMode 
-            game={game}
-            onCardsChanged={handleDevCardsChanged}
-            onDevModeToggle={handleDevModeToggle}
-          />
         </div>
       </div>
     </div>
   );
-};
+});
 
 export default GameBoard;

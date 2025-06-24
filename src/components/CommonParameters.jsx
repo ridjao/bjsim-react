@@ -1,4 +1,5 @@
 import React from 'react';
+import DevMode from './DevMode.jsx';
 import './CommonParameters.css';
 
 const CommonParameters = ({ 
@@ -7,7 +8,10 @@ const CommonParameters = ({
   disabled = false,
   currentView = 'simulator',
   customGames = '',
-  onCustomGamesChange = () => {}
+  onCustomGamesChange = () => {},
+  game = null,
+  onDevCardsChanged = () => {},
+  onDevModeToggle = () => {}
 }) => {
   const isInteractiveMode = currentView === 'interactive';
 
@@ -137,6 +141,15 @@ const CommonParameters = ({
           </div>
         </div>
       </div>
+      
+      {/* Developer Mode - only in interactive mode */}
+      {isInteractiveMode && (
+        <DevMode 
+          game={game}
+          onCardsChanged={onDevCardsChanged}
+          onDevModeToggle={onDevModeToggle}
+        />
+      )}
     </div>
   );
 };

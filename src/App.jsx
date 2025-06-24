@@ -17,7 +17,13 @@ function App() {
   });
   const [customGames, setCustomGames] = useState('');
   const [isSimulationRunning, setIsSimulationRunning] = useState(false);
+  const [devModeState, setDevModeState] = useState({
+    enabled: false,
+    cards: []
+  });
+  const [interactiveGame, setInteractiveGame] = useState(null);
   const simulatorRef = useRef(null);
+  const gameBoardRef = useRef(null);
 
   const handleParameterChange = (param, value) => {
     setCommonParameters(prev => ({
@@ -30,6 +36,20 @@ function App() {
     if (simulatorRef.current && currentView === 'simulator') {
       simulatorRef.current.runSimulation();
     }
+  };
+
+  const handleDevCardsChanged = (cards) => {
+    setDevModeState(prev => ({
+      ...prev,
+      cards
+    }));
+  };
+
+  const handleDevModeToggle = (enabled) => {
+    setDevModeState(prev => ({
+      ...prev,
+      enabled
+    }));
   };
 
   return (
@@ -83,6 +103,9 @@ function App() {
               customGames={customGames}
               onCustomGamesChange={setCustomGames}
               disabled={isSimulationRunning}
+              game={interactiveGame}
+              onDevCardsChanged={handleDevCardsChanged}
+              onDevModeToggle={handleDevModeToggle}
             />
           </div>
         )}
@@ -98,7 +121,12 @@ function App() {
             onRunningStateChange={setIsSimulationRunning}
           />
         ) : (
-          <GameBoard commonParameters={commonParameters} />
+          <GameBoard 
+            ref={gameBoardRef}
+            commonParameters={commonParameters} 
+            devModeState={devModeState}
+            onGameChange={setInteractiveGame}
+          />
         )}
       </main>
     </div>
