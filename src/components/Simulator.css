@@ -20,6 +20,38 @@
   flex-shrink: 0;
 }
 
+.simulator-welcome {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  text-align: center;
+}
+
+.welcome-message {
+  max-width: 500px;
+  padding: 30px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.welcome-message p {
+  margin: 15px 0;
+  color: #6c757d;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.welcome-message p:first-child {
+  margin-top: 0;
+}
+
+.welcome-message p:last-child {
+  margin-bottom: 0;
+}
+
 .simulator h2 {
   text-align: center;
   color: #333;

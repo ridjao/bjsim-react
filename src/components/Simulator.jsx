@@ -10,6 +10,7 @@ const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames },
   const [progress, setProgress] = useState(0);
   const [playedHands, setPlayedHands] = useState([]);
   const [startTime, setStartTime] = useState(null);
+  const [hasRunSimulation, setHasRunSimulation] = useState(false);
 
   const runSimulation = async () => {
     try {
@@ -33,6 +34,9 @@ const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames },
       setProgress(0);
       setResults(null);
       setPlayedHands([]);
+      
+      // Mark that a simulation has been run
+      setHasRunSimulation(true);
       
       // Give React time to render the reset state
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -228,6 +232,16 @@ const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames },
     <div className="simulator">
       <div className="simulator-layout">
         <div className="main-content">
+          {!results && !isRunning && !hasRunSimulation && (
+            <div className="simulator-welcome">
+              <div className="welcome-message">
+                <p><em>Simulation is ready to run. Click the play button in the header to start.</em></p>
+                <p><em>Simulation parameters can be modified in the settings page.</em></p>
+                <p><em>Played hands will only be tracked and displayed for simulations with 1,000 games or less.</em></p>
+              </div>
+            </div>
+          )}
+          
           {results && (
         <div className="results">
           <h3>Simulation Results</h3>

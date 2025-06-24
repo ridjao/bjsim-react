@@ -516,6 +516,15 @@ const GameBoard = ({ commonParameters }) => {
 
       <div className="game-layout">
         <div className="main-content">
+          {!currentGameData && gameState === 'waiting' && (
+            <div className="interactive-welcome">
+              <div className="welcome-message">
+                <p><em>Click the deal button to start.</em></p>
+                <p><em>In subsequent games, you can deal by clicking anywhere on the screen after a game ends.</em></p>
+              </div>
+            </div>
+          )}
+          
           {currentGameData && (
             <div className="game-area">
               <div className="dealer-area">
