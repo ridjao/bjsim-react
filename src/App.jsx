@@ -8,10 +8,14 @@ function App() {
   const [currentView, setCurrentView] = useState('simulator');
   const [showParameters, setShowParameters] = useState(false);
   const [commonParameters, setCommonParameters] = useState({
+    players: 1,
+    games: 100000,
+    strategy: 'basic',
     decks: 6,
     continuousShuffle: false,
     countBasedBetting: true
   });
+  const [customGames, setCustomGames] = useState('');
 
   const handleParameterChange = (param, value) => {
     setCommonParameters(prev => ({
@@ -53,6 +57,9 @@ function App() {
             <CommonParameters
               parameters={commonParameters}
               onParameterChange={handleParameterChange}
+              currentView={currentView}
+              customGames={customGames}
+              onCustomGamesChange={setCustomGames}
             />
           </div>
         )}
@@ -60,7 +67,11 @@ function App() {
       
       <main className="App-main">
         {currentView === 'simulator' ? (
-          <Simulator commonParameters={commonParameters} />
+          <Simulator 
+            commonParameters={commonParameters} 
+            customGames={customGames}
+            setCustomGames={setCustomGames}
+          />
         ) : (
           <GameBoard commonParameters={commonParameters} />
         )}

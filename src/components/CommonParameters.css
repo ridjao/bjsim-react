@@ -6,10 +6,16 @@
   margin: 10px 0;
 }
 
+.param-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
 .param-row {
   display: flex;
   gap: 20px;
-  align-items: center;
+  align-items: flex-end;
   flex-wrap: wrap;
 }
 
@@ -26,18 +32,26 @@
   font-size: 14px;
 }
 
-.param-group select {
+.param-group select,
+.param-group input[type="number"] {
   padding: 8px 12px;
   border: 1px solid #ced4da;
   border-radius: 4px;
   background: white;
   font-size: 14px;
+  min-width: 120px;
 }
 
-.param-group select:focus {
+.param-group select:focus,
+.param-group input[type="number"]:focus {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.custom-games-input {
+  margin-top: 8px;
+  min-width: 200px;
 }
 
 .param-group label input[type="checkbox"] {
@@ -53,6 +67,11 @@
 .param-group input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.param-group input[type="number"] {
+  width: 80px;
+  min-width: 80px;
 }
 
 /* Mobile responsiveness */

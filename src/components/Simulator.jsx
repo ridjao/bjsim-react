@@ -4,17 +4,11 @@ import { Player } from '../game/Player';
 import { basic, conservative } from '../game/Strategy';
 import './Simulator.css';
 
-const Simulator = ({ commonParameters }) => {
+const Simulator = ({ commonParameters, customGames, setCustomGames }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [results, setResults] = useState(null);
   const [progress, setProgress] = useState(0);
   const [playedHands, setPlayedHands] = useState([]);
-  const [simulationParams, setSimulationParams] = useState({
-    players: 1,
-    games: 100000,
-    strategy: 'basic'
-  });
-  const [customGames, setCustomGames] = useState('');
   const [startTime, setStartTime] = useState(null);
 
   const runSimulation = async () => {
@@ -23,14 +17,14 @@ const Simulator = ({ commonParameters }) => {
       
       // Get the actual number of games to run
       let gamesToRun;
-      if (simulationParams.games === 'custom') {
+      if (commonParameters.games === 'custom') {
         gamesToRun = parseInt(customGames);
         if (!gamesToRun || gamesToRun < 1) {
           alert('Please enter a valid number of games (1 or greater)');
           return;
         }
       } else {
-        gamesToRun = simulationParams.games;
+        gamesToRun = commonParameters.games;
       }
 
       console.log(`🎯 Setting up simulation for ${gamesToRun} games`);
@@ -51,9 +45,9 @@ const Simulator = ({ commonParameters }) => {
       console.log('✅ State updated, isRunning should now be true');
 
     const players = [];
-    const strategy = simulationParams.strategy === 'basic' ? basic : conservative;
+    const strategy = commonParameters.strategy === 'basic' ? basic : conservative;
     
-    for (let i = 0; i < simulationParams.players; i++) {
+    for (let i = 0; i < commonParameters.players; i++) {
       players.push(new Player(`Player ${i + 1}`, strategy));
     }
     
@@ -63,7 +57,7 @@ const Simulator = ({ commonParameters }) => {
     // Create new players for each chunk to avoid cumulative stats
     const createFreshPlayers = () => {
       const freshPlayers = [];
-      for (let i = 0; i < simulationParams.players; i++) {
+      for (let i = 0; i < commonParameters.players; i++) {
         freshPlayers.push(new Player(`Player ${i + 1}`, strategy));
       }
       return freshPlayers;
@@ -213,12 +207,6 @@ const Simulator = ({ commonParameters }) => {
     }
   };
 
-  const handleParamChange = (param, value) => {
-    setSimulationParams(prev => ({
-      ...prev,
-      [param]: value
-    }));
-  };
 
 
   const formatCard = (cardStr) => {
@@ -236,83 +224,17 @@ const Simulator = ({ commonParameters }) => {
 
   return (
     <div className="simulator">
-      <h2>Blackjack Simulator</h2>
-      
       <div className="simulator-layout">
         <div className="main-content">
           <div className="simulator-controls">
-        <div className="param-group">
-          <label>Number of Players:</label>
-          <input
-            type="number"
-            min="1"
-            max="6"
-            value={simulationParams.players}
-            onChange={(e) => handleParamChange('players', parseInt(e.target.value))}
-            disabled={isRunning}
-          />
-        </div>
-
-        <div className="param-group">
-          <label>Number of Games:</label>
-          <select
-            value={simulationParams.games === 'custom' ? 'custom' : simulationParams.games}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === 'custom') {
-                handleParamChange('games', 'custom');
-              } else {
-                handleParamChange('games', parseInt(value));
-                setCustomGames('');
-              }
-            }}
-            disabled={isRunning}
-          >
-            <option value={10}>10</option>
-            <option value={100}>100</option>
-            <option value={1000}>1,000</option>
-            <option value={10000}>10,000</option>
-            <option value={100000}>100,000</option>
-            <option value={1000000}>1,000,000</option>
-            <option value={10000000}>10,000,000</option>
-            <option value="custom">Custom...</option>
-          </select>
-          {simulationParams.games === 'custom' && (
-            <input
-              type="number"
-              min="1"
-              max="100000000"
-              placeholder="Enter number of games"
-              value={customGames}
-              onChange={(e) => setCustomGames(e.target.value)}
+            <button
+              className="btn btn-primary run-button"
+              onClick={runSimulation}
               disabled={isRunning}
-              className="custom-games-input"
-            />
-          )}
-        </div>
-
-
-        <div className="param-group">
-          <label>Strategy:</label>
-          <select
-            value={simulationParams.strategy}
-            onChange={(e) => handleParamChange('strategy', e.target.value)}
-            disabled={isRunning}
-          >
-            <option value="basic">Basic Strategy</option>
-            <option value="conservative">Conservative Strategy</option>
-          </select>
-        </div>
-
-
-        <button
-          className="btn btn-primary run-button"
-          onClick={runSimulation}
-          disabled={isRunning}
-        >
-          {isRunning ? 'Running...' : 'Run Simulation'}
-        </button>
-      </div>
+            >
+              {isRunning ? 'Running...' : 'Run Simulation'}
+            </button>
+          </div>
 
 
 
@@ -392,7 +314,7 @@ const Simulator = ({ commonParameters }) => {
               )}
             </div>
             
-            {(simulationParams.games === 'custom' ? parseInt(customGames) || 0 : simulationParams.games) > 1000 ? (
+            {(commonParameters.games === 'custom' ? parseInt(customGames) || 0 : commonParameters.games) > 1000 ? (
               <div className="hands-disabled">
                 <p>Hand tracking is disabled for simulations with more than 1,000 games to conserve memory.</p>
                 <p>Set games to 1,000 or fewer to see individual hands.</p>
@@ -466,7 +388,7 @@ const Simulator = ({ commonParameters }) => {
             )}
           </div>
 
-          {(isRunning || progress > 0) && (simulationParams.games === 'custom' ? parseInt(customGames) || 0 : simulationParams.games) > 1000 && (
+          {(isRunning || progress > 0) && (commonParameters.games === 'custom' ? parseInt(customGames) || 0 : commonParameters.games) > 1000 && (
             <div className={`simulation-progress ${!isRunning ? 'completed' : ''}`}>
               <div className="progress-header">
                 <div className="progress-status">
@@ -489,7 +411,7 @@ const Simulator = ({ commonParameters }) => {
               
               <div className="progress-details">
                 <span className="games-info">
-                  {isRunning ? 'Processing' : 'Processed'} {(simulationParams.games === 'custom' ? parseInt(customGames) || 0 : simulationParams.games).toLocaleString()} games
+                  {isRunning ? 'Processing' : 'Processed'} {(commonParameters.games === 'custom' ? parseInt(customGames) || 0 : commonParameters.games).toLocaleString()} games
                 </span>
                 <span className="estimated-time">
                   {isRunning ? (
