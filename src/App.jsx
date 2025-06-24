@@ -42,14 +42,14 @@ function App() {
             >
               Interactive
             </button>
-            <button 
-              className={`parameters-toggle ${showParameters ? 'active' : ''}`}
-              onClick={() => setShowParameters(!showParameters)}
-              title="Toggle common parameters"
-            >
-              ⚙️ Settings
-            </button>
           </nav>
+          <button 
+            className={`parameters-toggle ${showParameters ? 'active' : ''}`}
+            onClick={() => setShowParameters(!showParameters)}
+            title="Toggle common parameters"
+          >
+            ⚙️ Settings
+          </button>
         </div>
         
         {showParameters && (

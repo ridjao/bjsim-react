@@ -14,24 +14,19 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   position: relative;
 }
 
 .App-header h1 {
-  margin: 0;
+  margin: 0 0 6px 0;
   font-size: 1.2em;
-  flex-shrink: 0;
+  text-align: center;
 }
 
 .nav-tabs {
   display: flex;
+  justify-content: center;
   gap: 0;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 .nav-tab {
@@ -66,6 +61,10 @@
 }
 
 .parameters-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
   padding: 8px 16px;
   background: rgba(255,255,255,0.1);
   border: none;
@@ -78,17 +77,17 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-shrink: 0;
 }
 
 .parameters-toggle:hover {
   background: rgba(255,255,255,0.2);
-  transform: translateY(-1px);
+  transform: translateY(-50%) translateY(-1px);
 }
 
 .parameters-toggle.active {
   background: rgba(255,255,255,0.25);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  transform: translateY(-50%);
 }
 
 .parameters-accordion {
