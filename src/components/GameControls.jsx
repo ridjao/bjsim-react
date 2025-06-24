@@ -19,14 +19,6 @@ const GameControls = ({
     <div className="game-controls">
       <div className="control-section">
         <div className="all-actions">
-          <button 
-            className="btn btn-primary deal-btn" 
-            onClick={onDeal}
-            disabled={gameState === 'playing'}
-          >
-            Deal
-          </button>
-          
           <div className="player-actions">
             <button 
               className="btn btn-success" 
