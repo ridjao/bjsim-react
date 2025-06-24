@@ -74,12 +74,11 @@ const GameBoard = forwardRef(({ commonParameters, devModeState, onGameChange, sh
       }
     }
 
-    // Capture count before dealing starts
-    const countBeforeDealing = currentGame.shoe ? currentGame.shoe.count() : 0;
-    setInitialCount(countBeforeDealing);
-
     const gameData = currentGame.dealSingle();
     setCurrentGameData(gameData);
+    
+    // Use count from game data (captured after shuffle)
+    setInitialCount(gameData.count || 0);
     setGameState('playing');
     setCurrentPlayerHand(0);
     setHideHoleCard(true);

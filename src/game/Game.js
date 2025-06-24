@@ -386,7 +386,8 @@ export class Game {
           bet: 0,
           isBlackjack: this.dealer.isBlackjack(0)
         }]
-      }
+      },
+      count: count
     };
 
     return this.getCurrentGameState();
