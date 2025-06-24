@@ -504,13 +504,13 @@ const GameBoard = ({ commonParameters }) => {
   };
 
   const handleBoardClick = () => {
-    if (gameState === 'finished') {
+    if (gameState === 'finished' || gameState === 'waiting') {
       dealNewHand();
     }
   };
 
   return (
-    <div className="game-board" onClick={handleBoardClick} style={gameState === 'finished' ? {cursor: 'pointer'} : {}}>
+    <div className="game-board" onClick={handleBoardClick} style={(gameState === 'finished' || gameState === 'waiting') ? {cursor: 'pointer'} : {}}>
       <div className="game-header">
       </div>
 
@@ -520,8 +520,8 @@ const GameBoard = ({ commonParameters }) => {
             <div className="interactive-welcome">
               <div className="welcome-message">
                 <p><em>Welcome to Blackjack Simulator!</em></p>
-                <p><em>Click the deal button to start.</em></p>
-                <p><em>In subsequent games, you can deal by clicking anywhere on the screen after a game ends.</em></p>
+                <p><em>Click anywhere on the screen to start playing.</em></p>
+                <p><em>After each game ends, you can deal the next hand by clicking anywhere on the screen.</em></p>
               </div>
             </div>
           )}
