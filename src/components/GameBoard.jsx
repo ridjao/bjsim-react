@@ -37,6 +37,27 @@ const GameBoard = forwardRef(({ commonParameters, devModeState, onGameChange, sh
     getGame: () => game
   }));
 
+  // Update game parameters when commonParameters change
+  useEffect(() => {
+    if (game && game.params) {
+      game.params.decks = commonParameters.decks;
+      game.params.continuousShuffle = commonParameters.continuousShuffle;
+      game.params.countBasedBetting = commonParameters.countBasedBetting;
+    }
+  }, [game, commonParameters]);
+
+  // Update dev mode settings when they change
+  useEffect(() => {
+    if (game && game.shoe) {
+      game.shoe.setDevMode(devModeState.enabled);
+      if (devModeState.enabled && devModeState.cards.length > 0) {
+        game.shoe.setPreSelectedCards(devModeState.cards);
+      } else if (!devModeState.enabled) {
+        game.shoe.clearPreSelectedCards();
+      }
+    }
+  }, [game, devModeState]);
+
   const initializeGame = () => {
     const players = [new Player("You", interactive)];
     
