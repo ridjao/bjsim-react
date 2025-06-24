@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { Game, Parameters } from '../game/Game';
 import { Player } from '../game/Player';
 import { basic, conservative } from '../game/Strategy';
 import './Simulator.css';
 
-const Simulator = ({ commonParameters, customGames, setCustomGames }) => {
+const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames }, ref) => {
   const [isRunning, setIsRunning] = useState(false);
   const [results, setResults] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -207,7 +207,9 @@ const Simulator = ({ commonParameters, customGames, setCustomGames }) => {
     }
   };
 
-
+  useImperativeHandle(ref, () => ({
+    runSimulation
+  }));
 
   const formatCard = (cardStr) => {
     if (!cardStr) return '';
@@ -226,18 +228,6 @@ const Simulator = ({ commonParameters, customGames, setCustomGames }) => {
     <div className="simulator">
       <div className="simulator-layout">
         <div className="main-content">
-          <div className="simulator-controls">
-            <button
-              className="btn btn-primary run-button"
-              onClick={runSimulation}
-              disabled={isRunning}
-            >
-              {isRunning ? 'Running...' : 'Run Simulation'}
-            </button>
-          </div>
-
-
-
           {results && (
         <div className="results">
           <h3>Simulation Results</h3>
@@ -306,87 +296,84 @@ const Simulator = ({ commonParameters, customGames, setCustomGames }) => {
         </div>
 
         <div className="side-panel">
-          <div className="played-hands">
-            <div className="hands-header">
-              <h3>Played Hands</h3>
-              {playedHands.length > 0 && (
-                <span className="hands-count">({playedHands.length})</span>
-              )}
-            </div>
-            
-            {(commonParameters.games === 'custom' ? parseInt(customGames) || 0 : commonParameters.games) > 1000 ? (
-              <div className="hands-disabled">
-                <p>Hand tracking is disabled for simulations with more than 1,000 games to conserve memory.</p>
-                <p>Set games to 1,000 or fewer to see individual hands.</p>
+          {(commonParameters.games === 'custom' ? parseInt(customGames) || 0 : commonParameters.games) <= 1000 && (
+            <div className="played-hands">
+              <div className="hands-header">
+                <h3>Played Hands</h3>
+                {playedHands.length > 0 && (
+                  <span className="hands-count">({playedHands.length})</span>
+                )}
               </div>
-            ) : playedHands.length === 0 ? (
-              <div className="no-hands">
-                <p>No hands played yet. Run a simulation to see individual hands.</p>
-              </div>
-            ) : (
-              <div className="hands-list">
-                {playedHands.slice().reverse().map((hand, index) => (
-                  <div key={hand.handNumber} className="hand-record">
-                    <div className="hand-header">
-                      <span className="hand-number">#{hand.handNumber}</span>
-                      {hand.cardCount !== undefined && (
-                        <span className="card-count">Count: {hand.cardCount > 0 ? '+' : ''}{hand.cardCount}</span>
-                      )}
-                    </div>
-                    
-                    <div className="hand-details">
-                      <div className="dealer-info">
-                        <div className="dealer-label">Dealer:</div>
-                        <div className="dealer-cards">
-                          {hand.dealer.cards ? (
-                            <>
-                              {hand.dealer.cards.map((card, i) => (
-                                <span key={i}>{formatCard(card)}</span>
-                              ))}
-                              <span className="total">({hand.dealer.finalTotal === -1 ? 'Bust' : hand.dealer.finalTotal})</span>
-                            </>
-                          ) : (
-                            <>
-                              {formatCard(hand.dealer.upCard)}
-                              <span className="total">(?)</span>
-                            </>
-                          )}
-                        </div>
+              
+              {playedHands.length === 0 ? (
+                <div className="no-hands">
+                  <p>No hands played yet. Run a simulation to see individual hands.</p>
+                </div>
+              ) : (
+                <div className="hands-list">
+                  {playedHands.slice().reverse().map((hand, index) => (
+                    <div key={hand.handNumber} className="hand-record">
+                      <div className="hand-header">
+                        <span className="hand-number">#{hand.handNumber}</span>
+                        {hand.cardCount !== undefined && (
+                          <span className="card-count">Count: {hand.cardCount > 0 ? '+' : ''}{hand.cardCount}</span>
+                        )}
                       </div>
                       
-                      {hand.players.map((player, playerIndex) => (
-                        <div key={playerIndex} className="player-info">
-                          <div className="player-label">{player.name}:</div>
-                          {player.hands.map((playerHand, handIndex) => (
-                            <div key={handIndex} className="player-hand">
-                              <div className="player-cards">
-                                {playerHand.cards.map((card, i) => (
+                      <div className="hand-details">
+                        <div className="dealer-info">
+                          <div className="dealer-label">Dealer:</div>
+                          <div className="dealer-cards">
+                            {hand.dealer.cards ? (
+                              <>
+                                {hand.dealer.cards.map((card, i) => (
                                   <span key={i}>{formatCard(card)}</span>
                                 ))}
-                                <span className="total">
-                                  ({playerHand.finalTotal === -1 ? 'Bust' : playerHand.finalTotal})
-                                </span>
-                                {playerHand.isDoubled && <span className="action-indicator doubled">2X</span>}
-                                {playerHand.isSurrendered && <span className="action-indicator surrendered">SURR</span>}
-                              </div>
-                              <div className={`result ${playerHand.result}`}>
-                                {playerHand.result.toUpperCase()}
-                                {playerHand.payout !== 0 && (
-                                  <span className="payout">
-                                    {playerHand.payout > 0 ? '+' : ''}${playerHand.payout.toFixed(2)}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          ))}
+                                <span className="total">({hand.dealer.finalTotal === -1 ? 'Bust' : hand.dealer.finalTotal})</span>
+                              </>
+                            ) : (
+                              <>
+                                {formatCard(hand.dealer.upCard)}
+                                <span className="total">(?)</span>
+                              </>
+                            )}
+                          </div>
                         </div>
-                      ))}
+                        
+                        {hand.players.map((player, playerIndex) => (
+                          <div key={playerIndex} className="player-info">
+                            <div className="player-label">{player.name}:</div>
+                            {player.hands.map((playerHand, handIndex) => (
+                              <div key={handIndex} className="player-hand">
+                                <div className="player-cards">
+                                  {playerHand.cards.map((card, i) => (
+                                    <span key={i}>{formatCard(card)}</span>
+                                  ))}
+                                  <span className="total">
+                                    ({playerHand.finalTotal === -1 ? 'Bust' : playerHand.finalTotal})
+                                  </span>
+                                  {playerHand.isDoubled && <span className="action-indicator doubled">2X</span>}
+                                  {playerHand.isSurrendered && <span className="action-indicator surrendered">SURR</span>}
+                                </div>
+                                <div className={`result ${playerHand.result}`}>
+                                  {playerHand.result.toUpperCase()}
+                                  {playerHand.payout !== 0 && (
+                                    <span className="payout">
+                                      {playerHand.payout > 0 ? '+' : ''}${playerHand.payout.toFixed(2)}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {(isRunning || progress > 0) && (commonParameters.games === 'custom' ? parseInt(customGames) || 0 : commonParameters.games) > 1000 && (
             <div className={`simulation-progress ${!isRunning ? 'completed' : ''}`}>
@@ -429,6 +416,8 @@ const Simulator = ({ commonParameters, customGames, setCustomGames }) => {
       </div>
     </div>
   );
-};
+});
+
+Simulator.displayName = 'Simulator';
 
 export default Simulator;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Simulator from './components/Simulator.jsx';
 import GameBoard from './components/GameBoard.jsx';
 import CommonParameters from './components/CommonParameters.jsx';
@@ -16,6 +16,7 @@ function App() {
     countBasedBetting: true
   });
   const [customGames, setCustomGames] = useState('');
+  const simulatorRef = useRef(null);
 
   const handleParameterChange = (param, value) => {
     setCommonParameters(prev => ({
@@ -24,12 +25,26 @@ function App() {
     }));
   };
 
+  const handleRunSimulation = () => {
+    if (simulatorRef.current && currentView === 'simulator') {
+      simulatorRef.current.runSimulation();
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
         <div className="header-main">
           <h1>Blackjack Simulator</h1>
           <div className="nav-container">
+            <button 
+              className={`run-simulation-header ${currentView === 'interactive' ? 'invisible' : ''}`}
+              onClick={handleRunSimulation}
+              disabled={currentView === 'interactive'}
+              title={currentView === 'simulator' ? "Run Simulation" : ""}
+            >
+              <div className="play-icon"></div>
+            </button>
             <nav className="nav-tabs">
               <button 
                 className={`nav-tab ${currentView === 'simulator' ? 'active' : ''}`}
@@ -74,6 +89,7 @@ function App() {
       <main className="App-main">
         {currentView === 'simulator' ? (
           <Simulator 
+            ref={simulatorRef}
             commonParameters={commonParameters} 
             customGames={customGames}
             setCustomGames={setCustomGames}
