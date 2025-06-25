@@ -116,6 +116,7 @@ function App() {
               game={interactiveGame}
               onDevCardsChanged={handleDevCardsChanged}
               onDevModeToggle={handleDevModeToggle}
+              devModeState={devModeState}
               showStatistics={showStatistics}
               onShowStatisticsChange={setShowStatistics}
             />

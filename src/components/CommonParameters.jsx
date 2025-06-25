@@ -12,6 +12,7 @@ const CommonParameters = ({
   game = null,
   onDevCardsChanged = () => {},
   onDevModeToggle = () => {},
+  devModeState = { enabled: false, cards: [] },
   showStatistics = true,
   onShowStatisticsChange = () => {}
 }) => {
@@ -162,6 +163,7 @@ const CommonParameters = ({
           game={game}
           onCardsChanged={onDevCardsChanged}
           onDevModeToggle={onDevModeToggle}
+          isDevMode={devModeState.enabled}
         />
       )}
     </div>

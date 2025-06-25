@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '../game/Card';
 import './DevMode.css';
 
-const DevMode = ({ game, onCardsChanged, onDevModeToggle }) => {
-  const [isDevMode, setIsDevMode] = useState(false);
+const DevMode = ({ game, onCardsChanged, onDevModeToggle, isDevMode = false }) => {
   const [selectedCards, setSelectedCards] = useState([]);
   const [newCardRank, setNewCardRank] = useState('A');
   const [newCardSuit, setNewCardSuit] = useState('S');
@@ -32,7 +31,6 @@ const DevMode = ({ game, onCardsChanged, onDevModeToggle }) => {
 
   const toggleDevMode = () => {
     const newDevMode = !isDevMode;
-    setIsDevMode(newDevMode);
     
     // Notify parent component about dev mode change
     if (onDevModeToggle) {
