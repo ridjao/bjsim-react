@@ -69,14 +69,6 @@ const GameBoard = forwardRef(({ commonParameters, devModeState, onGameChange, sh
     
     const newGame = new Game(players, params);
     
-    // Apply dev mode settings if they exist
-    if (devModeState.enabled && newGame.shoe) {
-      newGame.shoe.setDevMode(true);
-      if (devModeState.cards.length > 0) {
-        newGame.shoe.setPreSelectedCards(devModeState.cards);
-      }
-    }
-    
     setGame(newGame);
     return newGame;
   };
