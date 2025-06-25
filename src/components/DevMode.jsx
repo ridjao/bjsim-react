@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '../game/Card';
 import './DevMode.css';
 
-const DevMode = ({ game, onCardsChanged, onDevModeToggle, isDevMode = false }) => {
-  const [selectedCards, setSelectedCards] = useState([]);
+const DevMode = ({ game, onCardsChanged, onDevModeToggle, isDevMode = false, selectedCards = [] }) => {
   const [newCardRank, setNewCardRank] = useState('A');
   const [newCardSuit, setNewCardSuit] = useState('S');
 
@@ -52,7 +51,6 @@ const DevMode = ({ game, onCardsChanged, onDevModeToggle, isDevMode = false }) =
     const cardName = newCardRank + newCardSuit;
     const card = new Card(cardName);
     const newCards = [...selectedCards, card];
-    setSelectedCards(newCards);
     
     if (game && game.shoe) {
       console.log('Setting pre-selected cards:', newCards.map(c => c.name));
@@ -66,7 +64,6 @@ const DevMode = ({ game, onCardsChanged, onDevModeToggle, isDevMode = false }) =
 
   const removeCard = (index) => {
     const newCards = selectedCards.filter((_, i) => i !== index);
-    setSelectedCards(newCards);
     
     if (game && game.shoe) {
       game.shoe.setPreSelectedCards(newCards);
@@ -78,8 +75,6 @@ const DevMode = ({ game, onCardsChanged, onDevModeToggle, isDevMode = false }) =
   };
 
   const clearCards = () => {
-    setSelectedCards([]);
-    
     if (game && game.shoe) {
       game.shoe.clearPreSelectedCards();
     }
@@ -124,7 +119,6 @@ const DevMode = ({ game, onCardsChanged, onDevModeToggle, isDevMode = false }) =
 
   const loadPreset = (preset) => {
     const cards = preset.cards.map(cardName => new Card(cardName));
-    setSelectedCards(cards);
     
     if (game && game.shoe) {
       console.log('Loading preset:', preset.name, 'Cards:', cards.map(c => c.name));

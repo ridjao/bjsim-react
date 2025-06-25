@@ -164,6 +164,7 @@ const CommonParameters = ({
           onCardsChanged={onDevCardsChanged}
           onDevModeToggle={onDevModeToggle}
           isDevMode={devModeState.enabled}
+          selectedCards={devModeState.cards}
         />
       )}
     </div>
