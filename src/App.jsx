@@ -21,19 +21,15 @@ function App() {
     enabled: false,
     cards: []
   });
-  const [showStatistics, setShowStatistics] = useState(true); // Default true for simulator
+  const [userShowStatistics, setUserShowStatistics] = useState(null); // null means use default
   const [interactiveGame, setInteractiveGame] = useState(null);
   const simulatorRef = useRef(null);
   const gameBoardRef = useRef(null);
 
-  // Update showStatistics default when view changes
-  useEffect(() => {
-    if (currentView === 'simulator') {
-      setShowStatistics(true); // Default true for simulator
-    } else {
-      setShowStatistics(false); // Default false for interactive
-    }
-  }, [currentView]);
+  // Compute effective showStatistics value
+  const showStatistics = userShowStatistics !== null 
+    ? userShowStatistics 
+    : (currentView === 'simulator');
 
   const handleParameterChange = (param, value) => {
     setCommonParameters(prev => ({
@@ -60,6 +56,10 @@ function App() {
       ...prev,
       enabled
     }));
+  };
+
+  const handleShowStatisticsChange = (value) => {
+    setUserShowStatistics(value);
   };
 
   return (
@@ -118,7 +118,7 @@ function App() {
               onDevModeToggle={handleDevModeToggle}
               devModeState={devModeState}
               showStatistics={showStatistics}
-              onShowStatisticsChange={setShowStatistics}
+              onShowStatisticsChange={handleShowStatisticsChange}
             />
           </div>
         )}
