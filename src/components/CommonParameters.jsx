@@ -104,22 +104,6 @@ const CommonParameters = ({
             </>
           )}
 
-          {/* Show per-player strategy selector for multiple players in simulator mode */}
-          {!isInteractiveMode && parameters.players > 1 && (
-            <PlayerStrategySelector
-              playerCount={parameters.players}
-              playerStrategies={playerStrategies}
-              onPlayerStrategyChange={onPlayerStrategyChange}
-              getPlayerStrategy={getPlayerStrategy}
-              disabled={disabled}
-            />
-          )}
-
-          {!isInteractiveMode && (
-            <>
-            </>
-          )}
-
           {/* Common parameters */}
           <div className="param-group">
             <label>Number of Decks:</label>
