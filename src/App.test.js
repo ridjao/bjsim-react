@@ -1,8 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders blackjack simulator', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  // Check that the simulator view is rendered by default
+  const simulatorElements = screen.getAllByText(/simulator/i);
+  expect(simulatorElements.length).toBeGreaterThan(0);
+});
+
+test('renders with default parameters', () => {
+  render(<App />);
+  // The app should render without crashing with default parameters
+  expect(document.body).toBeInTheDocument();
 });
