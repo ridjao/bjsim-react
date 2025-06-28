@@ -1,0 +1,59 @@
+.player-strategy-selector {
+  margin-top: 15px;
+}
+
+.player-strategy-selector .param-group.full-width {
+  flex: 1 1 100%;
+  width: 100%;
+}
+
+.player-strategies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.player-strategy-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.player-strategy-row .player-label {
+  font-weight: 500;
+  min-width: 80px;
+  font-size: 0.9em;
+}
+
+.player-strategy-row .strategy-select {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  font-size: 0.9em;
+}
+
+.player-strategy-row .strategy-select:disabled {
+  background-color: #f5f5f5;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.player-strategy-row .strategy-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .player-strategies-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .player-strategy-row .player-label {
+    min-width: 70px;
+  }
+}

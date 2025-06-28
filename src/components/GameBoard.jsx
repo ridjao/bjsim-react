@@ -6,7 +6,7 @@ import PlayerComponent from './Player.jsx';
 import GameControls from './GameControls.jsx';
 import './GameBoard.css';
 
-const GameBoard = forwardRef(({ commonParameters, devModeState, onGameChange, showStatistics }, ref) => {
+const GameBoard = forwardRef(({ commonParameters, devModeState, onGameChange, showStatistics, playerStrategies = [], getPlayerStrategy }, ref) => {
   const [game, setGame] = useState(null);
   const [gameState, setGameState] = useState('waiting'); // waiting, playing, finished
   const [currentGameData, setCurrentGameData] = useState(null);
