@@ -4,7 +4,7 @@ import { Player } from '../game/Player';
 import { basic, conservative } from '../game/Strategy';
 import './Simulator.css';
 
-const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames, onRunningStateChange, showStatistics }, ref) => {
+const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames, onRunningStateChange, showStatistics, playerStrategies = [], getPlayerStrategy }, ref) => {
   const [isRunning, setIsRunning] = useState(false);
   const [results, setResults] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -71,9 +71,10 @@ const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames, o
       console.log('✅ State updated, isRunning should now be true');
 
     const players = [];
-    const strategy = commonParameters.strategy === 'basic' ? basic : conservative;
     
     for (let i = 0; i < commonParameters.players; i++) {
+      const playerStrategyName = getPlayerStrategy ? getPlayerStrategy(i) : commonParameters.strategy;
+      const strategy = playerStrategyName === 'basic' ? basic : conservative;
       players.push(new Player(`Player ${i + 1}`, strategy));
     }
     
@@ -84,6 +85,8 @@ const Simulator = forwardRef(({ commonParameters, customGames, setCustomGames, o
     const createFreshPlayers = () => {
       const freshPlayers = [];
       for (let i = 0; i < commonParameters.players; i++) {
+        const playerStrategyName = getPlayerStrategy ? getPlayerStrategy(i) : commonParameters.strategy;
+        const strategy = playerStrategyName === 'basic' ? basic : conservative;
         freshPlayers.push(new Player(`Player ${i + 1}`, strategy));
       }
       return freshPlayers;

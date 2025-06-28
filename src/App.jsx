@@ -15,6 +15,7 @@ function App() {
     continuousShuffle: false,
     countBasedBetting: true
   });
+  const [playerStrategies, setPlayerStrategies] = useState([]);
   const [customGames, setCustomGames] = useState('');
   const [isSimulationRunning, setIsSimulationRunning] = useState(false);
   const [devModeState, setDevModeState] = useState({
@@ -31,11 +32,63 @@ function App() {
     ? userShowStatistics 
     : (currentView === 'simulator');
 
+  // Utility function to get strategy for a specific player
+  const getPlayerStrategy = (playerIndex) => {
+    if (playerStrategies.length > playerIndex && playerStrategies[playerIndex]) {
+      return playerStrategies[playerIndex];
+    }
+    return commonParameters.strategy; // Fallback to default strategy
+  };
+
+  // Utility function to update player strategies when player count changes
+  const updatePlayerStrategiesForPlayerCount = (newPlayerCount) => {
+    setPlayerStrategies(prev => {
+      const newStrategies = [...prev];
+      
+      // If we have fewer strategies than players, fill with default strategy
+      while (newStrategies.length < newPlayerCount) {
+        newStrategies.push(commonParameters.strategy);
+      }
+      
+      // If we have more strategies than players, trim the array
+      if (newStrategies.length > newPlayerCount) {
+        newStrategies.splice(newPlayerCount);
+      }
+      
+      return newStrategies;
+    });
+  };
+
   const handleParameterChange = (param, value) => {
     setCommonParameters(prev => ({
       ...prev,
       [param]: value
     }));
+    
+    // When player count changes, update player strategies
+    if (param === 'players') {
+      updatePlayerStrategiesForPlayerCount(value);
+    }
+    
+    // When default strategy changes, update all player strategies that are not explicitly set
+    if (param === 'strategy') {
+      setPlayerStrategies(prev => {
+        if (prev.length === 0) return []; // If no per-player strategies set, keep empty
+        return prev.map(strategy => strategy || value); // Update any unset strategies
+      });
+    }
+  };
+
+  const handlePlayerStrategyChange = (playerIndex, strategy) => {
+    setPlayerStrategies(prev => {
+      const newStrategies = [...prev];
+      // Ensure the array is long enough
+      while (newStrategies.length <= playerIndex) {
+        newStrategies.push(commonParameters.strategy);
+      }
+      newStrategies[playerIndex] = strategy;
+      return newStrategies;
+    });
   };
 
   const handleRunSimulation = () => {
@@ -118,7 +171,10 @@ function App() {
               onDevModeToggle={handleDevModeToggle}
               devModeState={devModeState}
               showStatistics={showStatistics}
-              onShowStatisticsChange={handleShowStatisticsChange}
+              onShowStatisticsChange={setUserShowStatistics}
+              playerStrategies={playerStrategies}
+              onPlayerStrategyChange={handlePlayerStrategyChange}
+              getPlayerStrategy={getPlayerStrategy}
             />
           </div>
         )}
@@ -133,6 +189,8 @@ function App() {
             setCustomGames={setCustomGames}
             onRunningStateChange={setIsSimulationRunning}
             showStatistics={showStatistics}
+            playerStrategies={playerStrategies}
+            getPlayerStrategy={getPlayerStrategy}
           />
         ) : (
           <GameBoard 
@@ -141,6 +199,8 @@ function App() {
             devModeState={devModeState}
             onGameChange={setInteractiveGame}
             showStatistics={showStatistics}
+            playerStrategies={playerStrategies}
+            getPlayerStrategy={getPlayerStrategy}
           />
         )}
       </main>

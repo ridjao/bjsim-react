@@ -1,5 +1,6 @@
 import React from 'react';
 import DevMode from './DevMode.jsx';
+import PlayerStrategySelector from './PlayerStrategySelector.jsx';
 import './CommonParameters.css';
 
 const CommonParameters = ({ 
@@ -14,7 +15,10 @@ const CommonParameters = ({
   onDevModeToggle = () => {},
   devModeState = { enabled: false, cards: [] },
   showStatistics = true,
-  onShowStatisticsChange = () => {}
+  onShowStatisticsChange = () => {},
+  playerStrategies = [],
+  onPlayerStrategyChange = () => {},
+  getPlayerStrategy = () => 'basic'
 }) => {
   const isInteractiveMode = currentView === 'interactive';
 
@@ -86,7 +90,7 @@ const CommonParameters = ({
               )}
 
               <div className="param-group">
-                <label>Strategy:</label>
+                <label>Default Strategy:</label>
                 <select
                   value={parameters.strategy}
                   onChange={(e) => onParameterChange('strategy', e.target.value)}
@@ -97,6 +101,22 @@ const CommonParameters = ({
                   <option value="conservative">Conservative</option>
                 </select>
               </div>
+            </>
+          )}
+
+          {/* Show per-player strategy selector for multiple players in simulator mode */}
+          {!isInteractiveMode && parameters.players > 1 && (
+            <PlayerStrategySelector
+              playerCount={parameters.players}
+              playerStrategies={playerStrategies}
+              onPlayerStrategyChange={onPlayerStrategyChange}
+              getPlayerStrategy={getPlayerStrategy}
+              disabled={disabled}
+            />
+          )}
+
+          {!isInteractiveMode && (
+            <>
             </>
           )}
 
@@ -116,6 +136,19 @@ const CommonParameters = ({
             </select>
           </div>
         </div>
+
+        {/* Per-player strategy selection row - only for simulator with multiple players */}
+        {!isInteractiveMode && parameters.players > 1 && (
+          <div className="param-row">
+            <PlayerStrategySelector
+              playerCount={parameters.players}
+              playerStrategies={playerStrategies}
+              onPlayerStrategyChange={onPlayerStrategyChange}
+              getPlayerStrategy={getPlayerStrategy}
+              disabled={disabled}
+            />
+          </div>
+        )}
 
         {/* Second row - checkboxes */}
         <div className="param-row checkbox-row">
